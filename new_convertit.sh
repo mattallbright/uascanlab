@@ -482,7 +482,7 @@ if [[ $VISIT == "Baseline" ]] || [[ $VISIT == "dayofscan" ]] || [[ $VISIT == "Bo
 	ANAT=`find /data/$STUDY/RAW_data/"$PARTIC"/ -iname "$ANATSTRING"* -print | sort -r -V | tail -1 | sed 's/.*\///'`
 
 	echo -en '\n'
-	echo "Test event: Anatomical .nii file deletion immenent!"
+	echo "Test event: Anatomical .nii file deletion imminent!"
 	echo -en '\n'
 	echo -e "\e[0;31m.nii files are fine to delete, but .dcm files are not!\e[0m"
 	echo -en '\n'
@@ -496,10 +496,10 @@ if [[ $VISIT == "Baseline" ]] || [[ $VISIT == "dayofscan" ]] || [[ $VISIT == "Bo
 	find /data/$STUDY/RAW_data/"$PARTIC"/"$ANAT"/ -iname '*.dcm' -print | dcm2nii $(xargs);
 
 	#Select the converted nifti file and move it to the participant's individual analysis folder for the task (in rest)
-	find /data/$STUDY/RAW_data/"$PARTIC"/"$ANAT"/ -not -iname "co*" -not -iname "o*" -iname '*.nii' -print | xargs cp -pt /data/$STUDY/indiv_analysis/"$PARTIC"/3danat_rest/$VISIT/
+	find /data/$STUDY/RAW_data/"$PARTIC"/"$ANAT"/ -not -iname "co*" -not -iname "o*" -iname '*.nii' -print | xargs cp -pt /data/$STUDY/indiv_analysis/"$PARTIC"/3danat_rest/"$VISIT"/
 
 	#Navigate to the nifiti file in the participant's BOLD directory for the task.
-	cd /data/$STUDY/indiv_analysis/"$PARTIC"/3danat_rest/$VISIT/
+	cd /data/$STUDY/indiv_analysis/"$PARTIC"/3danat_rest/"$VISIT"/
 	
 	#Copy to other anatomical task folders
 	while read TASKVALUE
@@ -508,7 +508,7 @@ if [[ $VISIT == "Baseline" ]] || [[ $VISIT == "dayofscan" ]] || [[ $VISIT == "Bo
 			sleep 1
 		else
 			echo "Copying rest value to" "$TASKVALUE"
-			find ./ -iname '*.nii' -print | xargs cp -pt ../../3danat_"$TASKVALUE"/$VISIT/
+			find ./ -iname '*.nii' -print | xargs cp -pt ../../3danat_"$TASKVALUE"/"$VISIT"/
 		fi
 	done < /data/$STUDY/indiv_analysis/$PARTIC/tasks.txt
 
@@ -529,13 +529,13 @@ if [[ $VISIT == "Baseline" ]] || [[ $VISIT == "dayofscan" ]] || [[ $VISIT == "Bo
 		find /data/$STUDY/RAW_data/"$PARTIC"/"$ANAT2"/ -iname '*.dcm' -print | dcm2nii $(xargs);
 
 		#Select the converted nifti file and rename it
-		find /data/$STUDY/RAW_data/"$PARTIC"/"$ANAT2"/ -not -iname "co*" -not -iname "o*" -iname '*.nii' -print | mv $(xargs) cd /data/$STUDY/indiv_analysis/"$PARTIC"/3danat_rest/$VISIT/""$PARTIC"_Anatomical_Repeat.nii"
+		find /data/$STUDY/RAW_data/"$PARTIC"/"$ANAT2"/ -not -iname "co*" -not -iname "o*" -iname '*.nii' -print | mv $(xargs) cd /data/$STUDY/indiv_analysis/"$PARTIC"/3danat_rest/"$VISIT"/""$PARTIC"_Anatomical_Repeat.nii"
 
 		#Task loop for all tasks
 		while read TASKVALUE
 		do
 			echo "Copying repeat anatomical to" "$TASKVALUE"
-			find ./ -name ""$PARTIC"_Anatomical_Repeat.nii" -print | xargs cp -pt /data/$STUDY/indiv_analysis/"$PARTIC"/3danat_"$TASKVALUE"/$VISIT/
+			find ./ -name ""$PARTIC"_Anatomical_Repeat.nii" -print | xargs cp -pt /data/$STUDY/indiv_analysis/"$PARTIC"/3danat_"$TASKVALUE"/"$VISIT"/
 		done < /data/$STUDY/indiv_analysis/$PARTIC/tasks.txt
 	else
 		echo -en '\n'
@@ -641,13 +641,13 @@ if [[ $VISIT == "Baseline" ]] || [[ $VISIT == "dayofscan" ]] || [[ $VISIT == "Bo
 	find ./ -iname '*.nii' -print | mv $(xargs) Magnitude_"$PARTIC".nii
 	
 	#copy converted nifti file to indiv_analysis
-	find ./ -name "Magnitude_"$PARTIC".nii" | xargs cp -t /data/$STUDY/indiv_analysis/"$PARTIC"/fieldmaps/rest/Mag/$VISIT
+	find ./ -name "Magnitude_"$PARTIC".nii" | xargs cp -t /data/$STUDY/indiv_analysis/"$PARTIC"/fieldmaps/rest/Mag/"$VISIT"
 
 	#Task loop for all tasks
 	while read TASKVALUE
 	do
 		echo "Fieldmap" "$TASKVALUE" "Mag Finished"
-		find ./ -name "Magnitude_"$PARTIC".nii" | xargs cp -t /data/$STUDY/indiv_analysis/"$PARTIC"/fieldmaps/"$TASKVALUE"/Mag/$VISIT
+		find ./ -name "Magnitude_"$PARTIC".nii" | xargs cp -t /data/$STUDY/indiv_analysis/"$PARTIC"/fieldmaps/"$TASKVALUE"/Mag/"$VISIT"
 	sleep 2
 	done < /data/$STUDY/indiv_analysis/$PARTIC/tasks.txt
 
@@ -681,13 +681,13 @@ if [[ $VISIT == "Baseline" ]] || [[ $VISIT == "dayofscan" ]] || [[ $VISIT == "Bo
 	find ./ -iname '*.nii' -print | mv $(xargs) Phase_"$PARTIC".nii
 	
 	#copy converted nifti file to indiv_analysis
-	find ./ -name "Phase_"$PARTIC".nii" | xargs cp -t /data/$STUDY/indiv_analysis/"$PARTIC"/fieldmaps/rest/Phase/$VISIT
+	find ./ -name "Phase_"$PARTIC".nii" | xargs cp -t /data/$STUDY/indiv_analysis/"$PARTIC"/fieldmaps/rest/Phase/"$VISIT"
 
 	#Task loop for all tasks
 	while read TASKVALUE
 	do
 		echo "Fieldmap" "$TASKVALUE" "Phase Finished"
-		find ./ -name "Phase_"$PARTIC".nii" | xargs cp -t /data/$STUDY/indiv_analysis/"$PARTIC"/fieldmaps/"$TASKVALUE"/Phase/$VISIT
+		find ./ -name "Phase_"$PARTIC".nii" | xargs cp -t /data/$STUDY/indiv_analysis/"$PARTIC"/fieldmaps/"$TASKVALUE"/Phase/"$VISIT"
 	sleep 2
 	done < /data/$STUDY/indiv_analysis/$PARTIC/tasks.txt
 
@@ -749,7 +749,7 @@ if [[ $VISIT == "PostTX" ]] || [[ $VISIT == "Both" ]]; then
 	ANAT=`find /data/$STUDY/RAW_data/""$PARTIC"_2"/ -iname "$ANATSTRING"* -print | sort -r -V | tail -1 | sed 's/.*\///'`
 
 	echo -en '\n'
-	echo "Test event: Anatomical .nii file deletion immenent!"
+	echo "Test event: Anatomical .nii file deletion imminent!"
 	echo -en '\n'
 	echo -e "\e[0;31m.nii files are fine to delete, but .dcm files are not!\e[0m"
 	echo -en '\n'
@@ -763,11 +763,11 @@ if [[ $VISIT == "PostTX" ]] || [[ $VISIT == "Both" ]]; then
 	find /data/$STUDY/RAW_data/""$PARTIC"_2"/"$ANAT"/ -iname '*.dcm' -print | dcm2nii $(xargs);
 
 	#Select the converted nifti file and move it to the participant's individual analysis folder for the task (in rest)
-	cd /data/$STUDY/indiv_analysis/"$PARTIC"/3danat_rest/$VISIT/
-	find /data/$STUDY/RAW_data/""$PARTIC"_2"/"$ANAT"/ -not -iname "co*" -not -iname "o*" -iname '*.nii' -print | mv $(xargs) "$PARTIC"_2_Anatomical.nii
+	cd /data/$STUDY/indiv_analysis/"$PARTIC"/3danat_rest/"$VISIT"/
+	find /data/$STUDY/RAW_data/""$PARTIC"_2"/"$ANAT"/ -not -iname "co*" -not -iname "o*" -iname '*.nii' -print | mv $(xargs) ""$PARTIC"_2_Anatomical.nii"
 
 	#Navigate to the nifiti file in the participant's BOLD directory for the task.
-	cd /data/$STUDY/indiv_analysis/"$PARTIC"/3danat_rest/$VISIT/
+	cd /data/$STUDY/indiv_analysis/"$PARTIC"/3danat_rest/"$VISIT"/
 	
 	#Copy to other anatomical task folders
 	while read TASKVALUE
@@ -803,7 +803,7 @@ if [[ $VISIT == "PostTX" ]] || [[ $VISIT == "Both" ]]; then
 		while read TASKVALUE
 		do
 			echo "Copying repeat anatomical to" "$TASKVALUE"
-			find ./ -name ""$PARTIC"_2_Anatomical_Repeat.nii" -print | xargs cp -pt /data/$STUDY/indiv_analysis/"$PARTIC"/3danat_"$TASKVALUE"/$VISIT/
+			find ./ -name ""$PARTIC"_2_Anatomical_Repeat.nii" -print | xargs cp -pt /data/$STUDY/indiv_analysis/"$PARTIC"/3danat_"$TASKVALUE"/"$VISIT"/
 		done < /data/$STUDY/indiv_analysis/$PARTIC/tasks.txt
 	else
 		echo -en '\n'
@@ -851,7 +851,7 @@ if [[ $VISIT == "PostTX" ]] || [[ $VISIT == "Both" ]]; then
 			cd /data/$STUDY/RAW_data/""$PARTIC"_2"/"$TASK"/
 
 			#Select the converted nifti file and move it to the participant's individual analysis folder for the task
-			find ./ -iname '*.nii' | xargs cp -t /data/$STUDY/indiv_analysis/"$PARTIC"/bold/"$TASKVALUE"/$VISIT/
+			find ./ -iname '*.nii' | xargs cp -t /data/$STUDY/indiv_analysis/"$PARTIC"/bold/"$TASKVALUE"/"$VISIT"/
 
 			#Navigate to the nifiti file in the participant's BOLD directory for the task.
 			cd /data/$STUDY/indiv_analysis/"$PARTIC"/bold/"$TASKVALUE"/"$VISIT"
@@ -906,13 +906,13 @@ if [[ $VISIT == "PostTX" ]] || [[ $VISIT == "Both" ]]; then
 	find ./ -iname '*.nii' -print | mv $(xargs) Magnitude_""$PARTIC"_2".nii
 	
 	#copy converted nifti file to indiv_analysis
-	find ./ -name "Magnitude_""$PARTIC"_2".nii" | xargs cp -t /data/$STUDY/indiv_analysis/"$PARTIC"/fieldmaps/rest/Mag/$VISIT
+	find ./ -name "Magnitude_""$PARTIC"_2".nii" | xargs cp -t /data/$STUDY/indiv_analysis/"$PARTIC"/fieldmaps/rest/Mag/"$VISIT"
 
 	#For all tasks
 	while read TASKVALUE
 	do
 		echo "Fieldmap" "$TASKVALUE" "Mag Finished"
-		find ./ -name "Magnitude_""$PARTIC"_2".nii" | xargs cp -t /data/$STUDY/indiv_analysis/"$PARTIC"/fieldmaps/"$TASKVALUE"/Mag/$VISIT
+		find ./ -name "Magnitude_""$PARTIC"_2".nii" | xargs cp -t /data/$STUDY/indiv_analysis/"$PARTIC"/fieldmaps/"$TASKVALUE"/Mag/"$VISIT"
 	sleep 2
 	done < /data/$STUDY/indiv_analysis/$PARTIC/tasks.txt
 
@@ -946,13 +946,13 @@ if [[ $VISIT == "PostTX" ]] || [[ $VISIT == "Both" ]]; then
 	find ./ -iname '*.nii' -print | mv $(xargs) Phase_""$PARTIC"_2".nii
 	
 	#copy converted nifti file to indiv_analysis
-	find ./ -name "Phase_""$PARTIC"_2".nii" | xargs cp -t /data/$STUDY/indiv_analysis/"$PARTIC"/fieldmaps/rest/Phase/$VISIT
+	find ./ -name "Phase_""$PARTIC"_2".nii" | xargs cp -t /data/$STUDY/indiv_analysis/"$PARTIC"/fieldmaps/rest/Phase/"$VISIT"
 
 	#For all tasks
 	while read TASKVALUE
 	do
 		echo "Fieldmap" "$TASKVALUE" "Phase Finished"
-		find ./ -name "Phase_""$PARTIC"_2".nii" | xargs cp -t /data/$STUDY/indiv_analysis/"$PARTIC"/fieldmaps/"$TASKVALUE"/Phase/$VISIT
+		find ./ -name "Phase_""$PARTIC"_2".nii" | xargs cp -t /data/$STUDY/indiv_analysis/"$PARTIC"/fieldmaps/"$TASKVALUE"/Phase/"$VISIT"
 	sleep 2
 	done < /data/$STUDY/indiv_analysis/$PARTIC/tasks.txt
 
