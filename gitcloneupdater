@@ -4,22 +4,34 @@
 #The intent for this script is to automatically clone the repository on boot,
 #then copy all software directly into the default dirs (def /usr/local/bin)
 
-#Checks for proper folder in /opt/gitupdate
-if [[ -d /opt/gitupdate/ ]]; then
+#Loads entire script into memory as it will be overwritten
+{
 
-  #Cleans folder for git clone (required by git)
-  rm -rf /opt/gitupdate
+  #Checks for proper folder in /opt/gitupdate
+  if [[ -d /opt/gitupdate/staging ]]; then
 
-fi
+    #Cleans folder for git clone (required by git)
+    rm -rf /opt/gitupdate/staging
 
-#Then clones git
-echo "Cloning git!"
+  fi
 
-git clone "git://github.com/mattallbright/uascanlab" /opt/gitupdate/
+  #Then clones git
+  echo "Cloning git!"
 
-#Symlinks all files in directory to /usr/local/bin
-#This currently requires manual input currently, though in future updates
-#this will be changed
-ln -s /opt/gitupdate/gitcloneupdater /usr/local/bin/
-ln -s /opt/gitupdate/rsynctohpc /usr/local/bin/
-ln -s /opt/gitupdate/new_convertit.sh /usr/local/bin/
+  git clone "git://github.com/mattallbright/uascanlab" /opt/gitupdate/staging
+
+  #Copy staging to deployed, overwriting any files
+  cp /opt/gitupdate/staging/* /opt/gitupdate/deployed/
+
+  #Symlinks all files in directory to /usr/local/bin
+  #This currently requires manual input currently, though in future updates
+  #this will be changed
+
+  ln -s /opt/gitupdate/deployed/gitcloneupdater /usr/local/bin/
+  ln -s /opt/gitupdate/deployed/new_rsynctohpc /usr/local/bin/
+  ln -s /opt/gitupdate/deployed/new_convertit.sh /usr/local/bin/
+  ln -s /opt/gitupdate/deployed/new_convertit_bash /usr/local/bin/
+
+  #Cleaup step
+  exit
+}
