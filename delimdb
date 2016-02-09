@@ -21,11 +21,14 @@ arr=( * )
 echo "Creating new database file."
 touch database
 
+#Add all the top values
+echo "FA.fminor       MD.fminor       FA.lh.atr       MD.lh.atr       FA.lh.cab       MD.lh.cab       FA.lh.ccg       MD.lh.ccg       FA.lh.cst       MD.lh.cst       FA.lh.ilf       MD.lh.ilf       FA.lh.slfp      MD.lh.slfp      FA.lh.slft      MD.lh.slft      FA.lh.unc       MD.lh.unc       FA.rh.atr       MD.rh.atr       FA.rh.cab       MD.rh.cab       FA.rh.ccg       MD.rh.ccg       FA.rh.cst       MD.rh.cst       FA.rh.ilf       MD.rh.ilf       FA.rh.slfp      MD.rh.slfp      FA.rh.slft      MD.rh.slft      FA.rh.unc       MD.rh.unc" >> database
+
 #For each value in array, read second line and add to darabase file
 for i in "${arr[@]}"; do
   echo -en '\n'
   echo "Creating line for "$i"..."
-  sed -n '2{p;q;}' /mnt/data1/TBIMODEL/TRACULA/tractography_output/"$i"/stats/ALLTRACTS_"$i" >> database
+  echo "$i  " | sed -n '2{p;q;}' /mnt/data1/TBIMODEL/TRACULA/tractography_output/"$i"/stats/ALLTRACTS_"$i" >> database
   echo -en '\n'
   echo "Line created."
 done
