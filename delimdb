@@ -8,15 +8,27 @@
 cd /mnt/data1/TBIMODEL/TRACULA/tractography_output/
 
 #Remove previous database file
-rm -rf database
+if [ -e database ]; then
+  echo "Removing old database file."
+  echo -en '\n'
+  rm -rf database
+fi
 
 #Creates an array of all usernames
 arr=( * )
 
 #Create new file
+echo "Creating new database file."
 touch database
 
 #For each value in array, read second line and add to darabase file
 for i in "${arr[@]}"; do
+  echo -en '\n'
+  echo "Creating line for "$i"..."
   sed -n '2{p;q;}' /mnt/data1/TBIMODEL/TRACULA/tractography_output/"$i"/stats/ALLTRACTS_"$i" >> database
+  echo -en '\n'
+  echo "Line created."
 done
+
+echo -en '\n'
+echo "All complete."
