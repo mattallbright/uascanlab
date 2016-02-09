@@ -18,34 +18,50 @@
   #Then clones git
   echo "Cloning git!"
 
-  git clone "git://github.com/mattallbright/uascanlab" /opt/gitupdate/staging
+  git clone "git://github.com/mattallbright/uascanlab" /opt/gitupdate/staging/
 
   #Checks for proper folder in /opt/gitupdate
   if [[ ! -d /opt/gitupdate/deployed ]]; then
 
     #Makes folder for git clone
+    echo -en '\n'
+    echo "Creating deployment directory!"
     mkdir /opt/gitupdate/deployed
 
   fi
 
   #Permissions modification
+  echo -en '\n'
+  echo "Setting permissions!"
   chmod 700 /opt/gitupdate/staging/gitcloneupdater
   chmod 700 /opt/gitupdate/staging/new_rsynctohpc
   chmod 700 /opt/gitupdate/staging/new_convertit.sh
-  chmod 700 /opt/gitupdate/staging/new_convertit_bash  
+  chmod 700 /opt/gitupdate/staging/new_convertit_bash
 
   #Copy staging to deployed, overwriting any files
+  echo -en '\n'
+  echo "Deploying the staging directory!"
   cp /opt/gitupdate/staging/* /opt/gitupdate/deployed
 
   #Symlinks all files in directory to /usr/local/bin
-  #This currently requires manual input currently, though in future updates
-  #this will be changed
 
+  echo -en '\n'
+  echo "Cleaning up and creating symbolic links!"
+
+  rm -rf /usr/local/bin/gitcloneupdater
   ln -s /opt/gitupdate/deployed/gitcloneupdater /usr/local/bin
+
+  rm -rf /usr/local/bin/new_rsynctohpc
   ln -s /opt/gitupdate/deployed/new_rsynctohpc /usr/local/bin
+
+  rm -rf /usr/local/bin/new_convertit.sh
   ln -s /opt/gitupdate/deployed/new_convertit.sh /usr/local/bin
+
+  rm -rf /usr/local/bin/new_convertit_bash
   ln -s /opt/gitupdate/deployed/new_convertit_bash /usr/local/bin
 
   #Cleaup step
+  echo -en '\n'
+  echo "All tasks completed!"
   exit
 }
