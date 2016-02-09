@@ -1,0 +1,19 @@
+#!/bin/bash
+#delimdb
+#Created by Matt Allbright
+#Takes delimited text files and formats them into an easy to use delimited file
+
+#Navigate to directory
+#Currently, this is just TRACULA
+cd /mnt/data1/TBIMODEL/TRACULA/tractography_output/
+
+#Create new file
+touch database
+
+#Creates an array of all usernames
+arr=( * )
+
+#For each value in array, read second line and add to darabase file
+for i in "${arr[@]}"; do
+  sed -n '2{p;q;}' /"$i"/stats/ALLTRACTS_"$i" >> database
+done
