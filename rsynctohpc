@@ -1,0 +1,47 @@
+#!/bin/bash
+#rsynctohpc
+#Created by Derek Pisner
+#Edited by Matt Allbright
+#Automatically detects the hostname of the Linux workstations, and then rsyncs
+#all data on shared drives to UA HPC system.
+#This script is located in /usr/local/bin
+
+#Initial echo
+echo "Backing up to HPC..."
+
+#Check for hostname
+if [[ hostname == rufus ]]; then
+  rsync -avz --exclude=.Trash /data/BLPTSD/ dpisner@sleet.hpc.arizona.edu:/rsgrps/killgore/backups/BLPTSD --log-file=hpc-user-rsync.log
+  rsync -avz --exclude=.Trash /data2/emot/ dpisner@sleet.hpc.arizona.edu:/rsgrps/killgore/backups/emot --log-file=hpc-user-rsync.log
+
+  #Debug message
+  echo -en '\n'
+  echo "Backed up rufus!"
+
+#Check for hostname
+elif [[hostname == norman ]]; then
+  rsync -avz --exclude=.Trash /data/tbimodel/ dpisner@login.hpc.arizona.edu:/rsgrps/killgore/backups/tbimodel --log-file=hpc-user-rsync.log
+  rsync -avz --exclude=.Trash /data/TBIMODEL/ dpisner@login.hpc.arizona.edu:/rsgrps/killgore/backups/TBIMODEL --log-file=hpc-user-rsync.log
+  rsync -avz --exclude=.Trash /data2/Cogr/ dpisner@login.hpc.arizona.edu:/rsgrps/killgore/backups/Cogr --log-file=hpc-user-rsync.log
+
+  #Debug message
+  echo -en '\n'
+  echo "Backed up norman!"
+
+#Check for hostname
+elif [[ hostname == wilbur ]]; then
+  rsync -avz --exclude=.Trash /data/BLHC/ dpisner@sleet.hpc.arizona.edu:/rsgrps/killgore/backups/BLHC --log-file=hpc-user-rsync.log
+  rsync -avz --exclude=.Trash /data/'EWM Behavioral'/ dpisner@sleet.hpc.arizona.edu:/rsgrps/killgore/backups/EWM/'EWM Behavioral' --log-file=hpc-user-rsync.log
+  rsync -avz --exclude=.Trash /data/EWM/ dpisner@sleet.hpc.arizona.edu:/rsgrps/killgore/backups/EWM --log-file=hpc-user-rsync.log
+  rsync -avz --exclude=.Trash /data2/blt/ dpisner@sleet.hpc.arizona.edu:/rsgrps/killgore/backups/blt --log-file=hpc-user-rsync.log
+
+  #Debug message
+  echo -en '\n'
+  echo "Backed up wilbur!"
+
+#Debug for undetected hostname
+else
+  echo -en '\n'
+  echo "Hostname not found!"
+
+fi

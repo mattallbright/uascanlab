@@ -1,0 +1,25 @@
+#!/bin/bash
+#gitcloneupdater
+#Created by Matt Allbright
+#The intent for this script is to automatically clone the repository on boot,
+#then copy all software directly into the default dirs (def /usr/local/bin)
+
+#Checks for proper folder in /opt/gitupdate
+if [[ ! -d /opt/gitupdate/ ]]; then
+
+  #Makes folder for git clone
+  mkdir /opt/gitupdate/
+
+fi
+
+#Then clones git
+echo "Cloning git!"
+
+git clone "git://github.com/mattallbright/uascanlab" /opt/gitupdate/
+
+#Symlinks all files in directory to /usr/local/bin
+#This currently requires manual input currently, though in future updates
+#this will be changed
+ln -s /opt/gitupdate/gitcloneupdater /usr/local/bin/
+ln -s /opt/gitupdate/rsynctohpc /usr/local/bin/
+ln -s /opt/gitupdate/new_convertit.sh /usr/local/bin/
