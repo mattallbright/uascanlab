@@ -28,6 +28,12 @@
 
   fi
 
+  #Permissions modification
+  chmod 700 /opt/gitupdate/staging/gitcloneupdater
+  chmod 700 /opt/gitupdate/staging/new_rsynctohpc
+  chmod 700 /opt/gitupdate/staging/new_convertit.sh
+  chmod 700 /opt/gitupdate/staging/new_convertit_bash  
+
   #Copy staging to deployed, overwriting any files
   cp /opt/gitupdate/staging/* /opt/gitupdate/deployed
 
