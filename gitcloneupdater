@@ -7,8 +7,8 @@
 #Checks for proper folder in /opt/gitupdate
 if [[ -d /opt/gitupdate/ ]]; then
 
-  #Makes folder for git clone
-  rm -irf /opt/gitupdate/*
+  #Cleans folder for git clone (required by git)
+  rm -rf /opt/gitupdate
 
 fi
 
