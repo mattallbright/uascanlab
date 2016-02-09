@@ -20,17 +20,25 @@
 
   git clone "git://github.com/mattallbright/uascanlab" /opt/gitupdate/staging
 
+  #Checks for proper folder in /opt/gitupdate
+  if [[ ! -d /opt/gitupdate/deployed ]]; then
+
+    #Makes folder for git clone
+    mkdir /opt/gitupdate/deployed
+
+  fi
+
   #Copy staging to deployed, overwriting any files
-  cp /opt/gitupdate/staging/* /opt/gitupdate/deployed/
+  cp /opt/gitupdate/staging/* /opt/gitupdate/deployed
 
   #Symlinks all files in directory to /usr/local/bin
   #This currently requires manual input currently, though in future updates
   #this will be changed
 
-  ln -s /opt/gitupdate/deployed/gitcloneupdater /usr/local/bin/
-  ln -s /opt/gitupdate/deployed/new_rsynctohpc /usr/local/bin/
-  ln -s /opt/gitupdate/deployed/new_convertit.sh /usr/local/bin/
-  ln -s /opt/gitupdate/deployed/new_convertit_bash /usr/local/bin/
+  ln -s /opt/gitupdate/deployed/gitcloneupdater /usr/local/bin
+  ln -s /opt/gitupdate/deployed/new_rsynctohpc /usr/local/bin
+  ln -s /opt/gitupdate/deployed/new_convertit.sh /usr/local/bin
+  ln -s /opt/gitupdate/deployed/new_convertit_bash /usr/local/bin
 
   #Cleaup step
   exit
