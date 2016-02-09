@@ -1,4 +1,7 @@
 #!/bin/sh
+#new_convertit
+#Created by Derek Pisner
+#Edited by Matt Allbright
 
 ##script should be given execute permissions and should be located in the data directory!
 #Welcome
@@ -58,7 +61,7 @@ if [[ -n ${studydirarray[*]} ]]; then
 
 		#New study creation, occurs if user input 'new'
 		elif [[ $REPLY == "new" ]]; then
-			unset 
+			unset
 			echo -en '\n'
 			echo -e "\e[0;31mType in the name of the new study.\e[0m"
 			echo -e "If you are seeing this screen by mistake, type '\e[0;31mback\e[0m'"
@@ -197,7 +200,7 @@ else
 	echo -e "\e[0;31ma participant to begin processing.\e[0m"
 	read PARTIC
 fi
-	
+
 
 echo -en '\n'
 
@@ -295,14 +298,14 @@ elif [[ $VISIT == "PostTX" ]] && [[ $NEWWRITE == "y" ]]; then
 		cd /Hermes/"$STUDY"_scans/"$OSIRIX"
 		target_dir=`ls /Hermes/"$STUDY"_scans/"$OSIRIX"`
 		cp -a "$target_dir" /data/$STUDY/RAW_data
-		mv /data/$STUDY/RAW_data/"$target_dir" /data/$STUDY/RAW_data/"$PARTIC"_2 
+		mv /data/$STUDY/RAW_data/"$target_dir" /data/$STUDY/RAW_data/"$PARTIC"_2
 	else
 		echo "This is your first run and might take a very long time."
 		OSIRIX=`find /Hermes/"$STUDY" -maxdepth 1 -iname "*$Num*" -print | sort | head -1 | sed 's/.*\///'`
 		cd /Hermes/"$STUDY"/"$OSIRIX"
 		target_dir=`ls /Hermes/"$STUDY"/"$OSIRIX"`
 		cp -a "$target_dir" /data/$STUDY/RAW_data
-		mv /data/$STUDY/RAW_data/"$target_dir" /data/$STUDY/RAW_data/"$PARTIC"_2 
+		mv /data/$STUDY/RAW_data/"$target_dir" /data/$STUDY/RAW_data/"$PARTIC"_2
 	fi
 fi
 
@@ -311,7 +314,7 @@ if [[ ! -d /data/$STUDY/indiv_analysis/"$PARTIC" ]]; then
 
 	unset TEMPLATECORRECT
 	cd /data/"$STUDY"/indiv_analysis
-	
+
 	if [[ ! -d /data/"$STUDY"/indiv_analysis/x ]]; then
 		TEMPLATECORRECT=n
 	else
@@ -379,7 +382,7 @@ if [[ ! -d /data/$STUDY/indiv_analysis/"$PARTIC" ]]; then
 		while [[ $BOLDDONE == "n" ]]; do
 			cat tasks.txt
 			echo -en '\n'
-			echo -e "Welcome to the 3danat/BOLD setup. \e[0;31mType a test name\e[0m to create folder template." 
+			echo -e "Welcome to the 3danat/BOLD setup. \e[0;31mType a test name\e[0m to create folder template."
 			echo "The common folder 'rest' has already been created."
 			read BOLDVALUE
 
@@ -410,7 +413,7 @@ if [[ ! -d /data/$STUDY/indiv_analysis/"$PARTIC" ]]; then
 			echo -en '\n'
 			cat tasks.txt
 			echo -en '\n'
-			
+
 			echo -e "Does this complete the 3danat BOLD setup? \e[0;31my/n\e[0m"
 			while read BOLDDONE; do
 				if [[ $BOLDDONE == "y" ]] || [[ $BOLDDONE == "n" ]]; then
@@ -425,11 +428,11 @@ if [[ ! -d /data/$STUDY/indiv_analysis/"$PARTIC" ]]; then
 		rm -r 3danat_/
 	fi
 
-	#Copy newly designed "x" template. 
+	#Copy newly designed "x" template.
 	cd /data/$STUDY/indiv_analysis/
 	cp -R ./x ./"$PARTIC"
 	cd ../
-	
+
 fi
 
 cd /data/$STUDY/
@@ -500,7 +503,7 @@ if [[ $VISIT == "Baseline" ]] || [[ $VISIT == "dayofscan" ]] || [[ $VISIT == "Bo
 
 	#Navigate to the nifiti file in the participant's BOLD directory for the task.
 	cd /data/$STUDY/indiv_analysis/"$PARTIC"/3danat_rest/"$VISIT"/
-	
+
 	#Copy to other anatomical task folders
 	while read TASKVALUE
 	do
@@ -516,7 +519,7 @@ if [[ $VISIT == "Baseline" ]] || [[ $VISIT == "dayofscan" ]] || [[ $VISIT == "Bo
 	cd /data/$STUDY
 
 	#Repeat Anatomical
-	if [ $NumbAnat -eq "2" ]; then			
+	if [ $NumbAnat -eq "2" ]; then
 
 		#Find Repeat Anatomical
 		ANAT2=`find /data/$STUDY/RAW_data/"$PARTIC"/ -iname "$ANATSTRING"* -print | sort -r | tail -1 | sed 's/.*\///'`
@@ -541,7 +544,7 @@ if [[ $VISIT == "Baseline" ]] || [[ $VISIT == "dayofscan" ]] || [[ $VISIT == "Bo
 		echo -en '\n'
 		echo "_____________"
 		echo -en '\n'
-		echo "No Repeat Anatomical" 
+		echo "No Repeat Anatomical"
 		echo "No Repeat Anatomical" >> /data/$STUDY/indiv_analysis/$PARTIC/runlog.txt
 		echo -en '\n'
 		echo "_____________"
@@ -552,7 +555,7 @@ if [[ $VISIT == "Baseline" ]] || [[ $VISIT == "dayofscan" ]] || [[ $VISIT == "Bo
 	cd /data/$STUDY
 
 	sleep 5
-	
+
 	##BOLD Tasks
 	echo -en '\n'
 	echo "Begin BOLD Tasks"
@@ -573,7 +576,7 @@ if [[ $VISIT == "Baseline" ]] || [[ $VISIT == "dayofscan" ]] || [[ $VISIT == "Bo
 
 		#Determine whether $TASK exists
 		if [ -n "$TASK" ]; then
-	
+
 			#Delete any pre-existing nifti files in RAW data directory
 			cd /data/$STUDY/RAW_data/"$PARTIC"/"$TASK"/
 			find ./ -iname '*.nii' -exec rm -i {} \;
@@ -596,7 +599,7 @@ if [[ $VISIT == "Baseline" ]] || [[ $VISIT == "dayofscan" ]] || [[ $VISIT == "Bo
 
 			#Return to $STUDY
 			cd /data/$STUDY
-		
+
 			#Echo statment
 			echo -en '\n'
 			echo "_____________"
@@ -616,16 +619,16 @@ if [[ $VISIT == "Baseline" ]] || [[ $VISIT == "dayofscan" ]] || [[ $VISIT == "Bo
 			echo -en '\n'
 			echo "_____________"
 			echo -en '\n'
-	
+
 		fi
 	sleep 2
-	done 
+	done
 
 	unset TASK
 
 	#Fieldmapping Magnitude
 	TASK=`find /data/$STUDY/RAW_data/"$PARTIC"/ -name 'field_mapping_*' -print | sort -r -V | tail -1 | sed 's/.*\///'`
-	
+
 	#Delete any pre-existing nifti files in RAW data directory
 	cd /data/$STUDY/RAW_data/"$PARTIC"/"$TASK"/
 	find ./ -iname '*.nii' -exec rm -i {} \;
@@ -639,7 +642,7 @@ if [[ $VISIT == "Baseline" ]] || [[ $VISIT == "dayofscan" ]] || [[ $VISIT == "Bo
 
 	#Rename converted nifti file
 	find ./ -iname '*.nii' -print | mv $(xargs) Magnitude_"$PARTIC".nii
-	
+
 	#copy converted nifti file to indiv_analysis
 	find ./ -name "Magnitude_"$PARTIC".nii" | xargs cp -t /data/$STUDY/indiv_analysis/"$PARTIC"/fieldmaps/rest/Mag/"$VISIT"
 
@@ -665,7 +668,7 @@ if [[ $VISIT == "Baseline" ]] || [[ $VISIT == "dayofscan" ]] || [[ $VISIT == "Bo
 
 	#Fieldmapping Phase
 	TASK=`find /data/$STUDY/RAW_data/"$PARTIC"/ -name 'field_mapping_*' -print | sort -V | tail -1 | sed 's/.*\///'`
-	
+
 	#Delete any pre-existing nifti files in RAW data directory
 	cd /data/$STUDY/RAW_data/"$PARTIC"/"$TASK"/
 	find ./ -iname '*.nii' -exec rm -i {} \;
@@ -679,7 +682,7 @@ if [[ $VISIT == "Baseline" ]] || [[ $VISIT == "dayofscan" ]] || [[ $VISIT == "Bo
 
 	#Rename converted nifti file
 	find ./ -iname '*.nii' -print | mv $(xargs) Phase_"$PARTIC".nii
-	
+
 	#copy converted nifti file to indiv_analysis
 	find ./ -name "Phase_"$PARTIC".nii" | xargs cp -t /data/$STUDY/indiv_analysis/"$PARTIC"/fieldmaps/rest/Phase/"$VISIT"
 
@@ -768,7 +771,7 @@ if [[ $VISIT == "PostTX" ]] || [[ $VISIT == "Both" ]]; then
 
 	#Navigate to the nifiti file in the participant's BOLD directory for the task.
 	cd /data/$STUDY/indiv_analysis/"$PARTIC"/3danat_rest/"$VISIT"/
-	
+
 	#Copy to other anatomical task folders
 	while read TASKVALUE
 	do
@@ -838,7 +841,7 @@ if [[ $VISIT == "PostTX" ]] || [[ $VISIT == "Both" ]]; then
 		TASK=`find ./RAW_data/""$PARTIC"_2"/ -iname "$TASKVALUE"* -print | sort -r | tail -1 | sed 's/.*\///'`
 		#Determine whether $TASK exists
 		if [ -n "$TASK" ]; then
-	
+
 			#Delete any pre-existing nifti files in RAW data directory
 			cd /data/$STUDY/RAW_data/""$PARTIC"_2"/"$TASK"/
 			find ./ -iname '*.nii' -exec rm -i {} \;
@@ -861,7 +864,7 @@ if [[ $VISIT == "PostTX" ]] || [[ $VISIT == "Both" ]]; then
 
 			#Return to $STUDY
 			cd /data/$STUDY
-		
+
 			#Echo statment
 			echo -en '\n'
 			echo "_____________"
@@ -881,7 +884,7 @@ if [[ $VISIT == "PostTX" ]] || [[ $VISIT == "Both" ]]; then
 			echo -en '\n'
 			echo "_____________"
 			echo -en '\n'
-	
+
 		fi
 	sleep 2
 	done
@@ -890,7 +893,7 @@ if [[ $VISIT == "PostTX" ]] || [[ $VISIT == "Both" ]]; then
 
 	#Fieldmapping Magnitude
 	TASK=`find /data/$STUDY/RAW_data/""$PARTIC"_2"/ -name 'field_mapping_*' -print | sort -r -V | tail -1 | sed 's/.*\///'`
-	
+
 	#Delete any pre-existing nifti files in RAW data directory
 	cd /data/$STUDY/RAW_data/""$PARTIC"_2"/"$TASK"/
 	find ./ -iname '*.nii' -exec rm -i {} \;
@@ -904,7 +907,7 @@ if [[ $VISIT == "PostTX" ]] || [[ $VISIT == "Both" ]]; then
 
 	#Rename converted nifti file
 	find ./ -iname '*.nii' -print | mv $(xargs) Magnitude_""$PARTIC"_2".nii
-	
+
 	#copy converted nifti file to indiv_analysis
 	find ./ -name "Magnitude_""$PARTIC"_2".nii" | xargs cp -t /data/$STUDY/indiv_analysis/"$PARTIC"/fieldmaps/rest/Mag/"$VISIT"
 
@@ -930,7 +933,7 @@ if [[ $VISIT == "PostTX" ]] || [[ $VISIT == "Both" ]]; then
 
 	#Fieldmapping Phase
 	TASK=`find /data/$STUDY/RAW_data/""$PARTIC"_2"/ -name 'field_mapping_*' -print | sort -V | tail -1 | sed 's/.*\///'`
-	
+
 	#Delete any pre-existing nifti files in RAW data directory
 	cd /data/$STUDY/RAW_data/""$PARTIC"_2"/"$TASK"/
 	find ./ -iname '*.nii' -exec rm -i {} \;
@@ -944,7 +947,7 @@ if [[ $VISIT == "PostTX" ]] || [[ $VISIT == "Both" ]]; then
 
 	#Rename converted nifti file
 	find ./ -iname '*.nii' -print | mv $(xargs) Phase_""$PARTIC"_2".nii
-	
+
 	#copy converted nifti file to indiv_analysis
 	find ./ -name "Phase_""$PARTIC"_2".nii" | xargs cp -t /data/$STUDY/indiv_analysis/"$PARTIC"/fieldmaps/rest/Phase/"$VISIT"
 

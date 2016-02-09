@@ -5,10 +5,10 @@
 #then copy all software directly into the default dirs (def /usr/local/bin)
 
 #Checks for proper folder in /opt/gitupdate
-if [[ ! -d /opt/gitupdate/ ]]; then
+if [[ -d /opt/gitupdate/ ]]; then
 
   #Makes folder for git clone
-  mkdir /opt/gitupdate/
+  rm -irf /opt/gitupdate/*
 
 fi
 

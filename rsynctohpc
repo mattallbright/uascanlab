@@ -6,7 +6,7 @@
 #all data on shared drives to UA HPC system.
 #This script is located in /usr/local/bin
 
-#Initial echo
+#Initial echo debug
 echo "Backing up to HPC..."
 
 #Check for hostname
