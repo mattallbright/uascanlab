@@ -1,5 +1,5 @@
 #!/bin/bash
-#rsynctohpc
+#new_rsynctohpc
 #Created by Derek Pisner
 #Edited by Matt Allbright
 #Automatically detects the hostname of the Linux workstations, and then rsyncs

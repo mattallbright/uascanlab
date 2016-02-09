@@ -23,20 +23,27 @@
   #Checks for proper folder in /opt/gitupdate
   if [[ ! -d /opt/gitupdate/deployed ]]; then
 
-    #Makes folder for git clone
+    #Makes folder for git clone to deploy to
     echo -en '\n'
     echo "Creating deployment directory!"
     mkdir /opt/gitupdate/deployed
 
   fi
 
+  #Create array of all file names
+  cd /opt/gitupdate/staging
+  arr=( * )
+
   #Permissions modification
   echo -en '\n'
   echo "Setting permissions!"
-  chmod 700 /opt/gitupdate/staging/gitcloneupdater
-  chmod 700 /opt/gitupdate/staging/new_rsynctohpc
-  chmod 700 /opt/gitupdate/staging/new_convertit.sh
-  chmod 700 /opt/gitupdate/staging/new_convertit_bash
+
+  #Uses previously created array to set permissions
+  for i in "${arr[@]}"; do
+    chmod 700 /opt/gitupdate/staging/"$i"
+    echo -en '\n'
+    echo "Completed permissions settings for "$i""
+  done
 
   #Copy staging to deployed, overwriting any files
   echo -en '\n'
@@ -44,21 +51,16 @@
   cp /opt/gitupdate/staging/* /opt/gitupdate/deployed
 
   #Symlinks all files in directory to /usr/local/bin
-
   echo -en '\n'
   echo "Cleaning up and creating symbolic links!"
 
-  rm -rf /usr/local/bin/gitcloneupdater
-  ln -s /opt/gitupdate/deployed/gitcloneupdater /usr/local/bin
-
-  rm -rf /usr/local/bin/new_rsynctohpc
-  ln -s /opt/gitupdate/deployed/new_rsynctohpc /usr/local/bin
-
-  rm -rf /usr/local/bin/new_convertit.sh
-  ln -s /opt/gitupdate/deployed/new_convertit.sh /usr/local/bin
-
-  rm -rf /usr/local/bin/new_convertit_bash
-  ln -s /opt/gitupdate/deployed/new_convertit_bash /usr/local/bin
+  #Uses previously created array to cleanup and create symlinks
+  for i in "${arr[@]}"; do
+    rm -rf /usr/local/bin/"$i"
+    ln -s /opt/gitupdate/deployed/"$i" /usr/local/bin
+    echo -en '\n'
+    echo "Created link for "$i""
+  done
 
   #Cleaup step
   echo -en '\n'
