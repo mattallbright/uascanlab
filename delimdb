@@ -18,5 +18,5 @@ touch database
 
 #For each value in array, read second line and add to darabase file
 for i in "${arr[@]}"; do
-  sed -n '2{p;q;}' /"$i"/stats/ALLTRACTS_"$i" >> database
+  sed -n '2{p;q;}' /mnt/data1/TBIMODEL/TRACULA/tractography_output/"$i"/stats/ALLTRACTS_"$i" >> database
 done
