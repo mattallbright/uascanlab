@@ -7,11 +7,14 @@
 #Currently, this is just TRACULA
 cd /mnt/data1/TBIMODEL/TRACULA/tractography_output/
 
-#Create new file
-touch database
+#Remove previous database file
+rm -rf database
 
 #Creates an array of all usernames
 arr=( * )
+
+#Create new file
+touch database
 
 #For each value in array, read second line and add to darabase file
 for i in "${arr[@]}"; do
