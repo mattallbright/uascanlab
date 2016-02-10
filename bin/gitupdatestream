@@ -1,0 +1,27 @@
+#!/bin/bash
+#gitupdatestream
+#Created by Matt Allbright
+#Designed to streamline the process of running git commands and Deploying
+#them in the SCAN Lab
+
+#Runs gitcloner
+./opt/gitupdate/staging/bin/gitcloner
+
+#Wait for gitcloner to finish all its processes
+wait
+
+#Set permissions for all files in /staging/
+chmod -R 775 /opt/gitupdate/staging/
+
+#Determines whether or not gitupdater exists before executing
+if [[ -e /opt/gitupdate/staging/bin/gitupdater ]]; then
+
+  #Executes the gitupdater script
+  ./opt/gitupdate/staging/bin/gitupdater
+
+else
+
+  echo -en '\n'
+  echo "The script gitupdater does not appear to have downloaded properly!"
+
+fi
