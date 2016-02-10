@@ -35,6 +35,7 @@ for i in "${arr[@]}"; do
   else
     echo -en '\n'
     echo ""$i" is missing ALLTRACTS data!"
+  fi
 done
 
 echo -en '\n'
