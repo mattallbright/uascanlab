@@ -30,6 +30,9 @@
 
   fi
 
+  #Set permissions for all files
+  chmod -R 700 /opt/gitupdate/staging/
+
   #Waits for all processes to finish
   wait
 
