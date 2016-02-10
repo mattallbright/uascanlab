@@ -29,7 +29,7 @@ for i in "${arr[@]}"; do
   if [ -e /mnt/data1/TBIMODEL/TRACULA/tractography_output/"$i"/stats/ALLTRACTS_"$i" ]; then
     echo -en '\n'
     echo "Creating line for "$i"..."
-    sed -e 's/^/\t/' -e 's/^/'"${i}"'/' -en '2{p;q;}' /mnt/data1/TBIMODEL/TRACULA/tractography_output/"$i"/stats/ALLTRACTS_"$i" >> database
+    sed -e 's/^/\t/' -e 's/^/'"${i}"'/' -n 2p /mnt/data1/TBIMODEL/TRACULA/tractography_output/"$i"/stats/ALLTRACTS_"$i" >> database
     echo -en '\n'
     echo "Line created."
   else
