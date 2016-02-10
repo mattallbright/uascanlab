@@ -22,13 +22,13 @@ echo "Creating new database file."
 touch database
 
 #Add all the top values
-echo -e "Partic \n\t FA.fminor \n\t MD.fminor \n\t FA.lh.atr \n\t MD.lh.atr \n\t FA.lh.cab \n\t MD.lh.cab \n\t FA.lh.ccg \n\t MD.lh.ccg \n\t FA.lh.cst \n\t MD.lh.cst \n\t FA.lh.ilf \n\t MD.lh.ilf \n\t FA.lh.slfp \n\t MD.lh.slfp \n\t FA.lh.slft \n\t MD.lh.slft \n\t FA.lh.unc \n\t  MD.lh.unc \n\t  FA.rh.atr \n\t  MD.rh.atr \n\t  FA.rh.cab \n\t  MD.rh.cab \n\t  FA.rh.ccg \n\t  MD.rh.ccg \n\t  FA.rh.cst \n\t  MD.rh.cst \n\t  FA.rh.ilf \n\t  MD.rh.ilf \n\t  FA.rh.slfp \n\t MD.rh.slfp \n\t FA.rh.slft \n\t MD.rh.slft \n\t FA.rh.unc \n\t  MD.rh.unc" >> database
+echo -e "Partic\tFA.fminor\tMD.fminor\tFA.lh.atr\tMD.lh.atr\tFA.lh.cab\tMD.lh.cab\tFA.lh.ccg\tMD.lh.ccg\tFA.lh.cst\tMD.lh.cst\tFA.lh.ilf\tMD.lh.ilf\tFA.lh.slfp\tMD.lh.slfp\tFA.lh.slft\tMD.lh.slft\tFA.lh.unc\t MD.lh.unc\t FA.rh.atr\t MD.rh.atr\t FA.rh.cab\t MD.rh.cab\t FA.rh.ccg\t MD.rh.ccg\t FA.rh.cst\t MD.rh.cst\t FA.rh.ilf\t MD.rh.ilf\t FA.rh.slfp\tMD.rh.slfp\tFA.rh.slft\tMD.rh.slft\tFA.rh.unc\t MD.rh.unc" >> database
 
 #For each value in array, read second line and add to darabase file
 for i in "${arr[@]}"; do
   echo -en '\n'
   echo "Creating line for "$i"..."
-  echo -e ""$i" \n\t " | sed -n 's/$/2{p;q;}/' /mnt/data1/TBIMODEL/TRACULA/tractography_output/"$i"/stats/ALLTRACTS_"$i" >> database
+  echo -e ""$i"\t" | sed -n 's/$/2{p;q;}/' /mnt/data1/TBIMODEL/TRACULA/tractography_output/"$i"/stats/ALLTRACTS_"$i" >> database
   echo -en '\n'
   echo "Line created."
 done
