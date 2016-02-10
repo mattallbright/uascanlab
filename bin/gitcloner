@@ -27,25 +27,7 @@
     echo -en '\n'
     echo "Creating deployment directory!"
     mkdir /opt/gitupdate/deployed
-
-  fi
-
-  #Set permissions for all files
-  chmod -R 775 /opt/gitupdate/staging/
-
-  #Waits for all processes to finish
-  wait
-
-  #Determines whether or not gitupdater exists before executing
-  if [[ -e /opt/gitupdate/staging/bin/gitupdater ]]; then
-
-    #Executes the gitupdater script
-    ./opt/gitupdate/staging/bin/gitupdater
-
-  else
-
-    echo -en '\n'
-    echo "The script gitupdater does not appear to have downloaded properly!"
+    mkdir /opt/gitupdate/bin
 
   fi
 

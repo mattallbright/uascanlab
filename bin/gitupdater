@@ -17,7 +17,7 @@ echo "Setting permissions for /bin/ files!"
 #Uses previously created array to set permissions
 for i in "${arr[@]}"; do
 
-  chmod 700 /opt/gitupdate/staging/bin/"$i"
+  chmod 775 /opt/gitupdate/staging/bin/"$i"
   echo "Completed permissions settings for "$i""
 
 done
@@ -59,7 +59,7 @@ if [[ -d /opt/gitupdate/staging/hostname_specific/"$HOSTNAME" ]]; then
   #Uses previously created array to set permissions
   for i in "${arr[@]}"; do
 
-    chmod 700 /opt/gitupdate/staging/hostname_specific/"$HOSTNAME"/"$i"
+    chmod 775 /opt/gitupdate/staging/hostname_specific/"$HOSTNAME"/"$i"
     echo "Completed permissions settings for "$i""
 
   done
@@ -67,6 +67,11 @@ if [[ -d /opt/gitupdate/staging/hostname_specific/"$HOSTNAME" ]]; then
   #Copy staging to deployed, overwriting any files
   echo -en '\n'
   echo "Deploying the hostname-specific staging directory!"
+
+  #Creates deployment directory
+  mkdir /opt/gitupdate/deployed/hostname_specific/"$HOSTNAME"
+
+  #Copies the files
   cp /opt/gitupdate/staging/hostname_specific/"$HOSTNAME"/* /opt/gitupdate/deployed/hostname_specific/"$HOSTNAME"/
 
   #Symlinks all files in directory to /usr/local/bin
