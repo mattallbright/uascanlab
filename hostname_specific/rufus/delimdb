@@ -28,7 +28,7 @@ echo -e "FA.fminor \t MD.fminor \t FA.lh.atr \t MD.lh.atr \t FA.lh.cab \t MD.lh.
 for i in "${arr[@]}"; do
   echo -en '\n'
   echo "Creating line for "$i"..."
-  echo "$i  " | sed -n '2{p;q;}' /mnt/data1/TBIMODEL/TRACULA/tractography_output/"$i"/stats/ALLTRACTS_"$i" >> database
+  echo -e "$i \t" | sed -n '2{p;q;}' /mnt/data1/TBIMODEL/TRACULA/tractography_output/"$i"/stats/ALLTRACTS_"$i" >> database
   echo -en '\n'
   echo "Line created."
 done

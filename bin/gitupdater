@@ -1,0 +1,98 @@
+#!/bin/bash
+#gitcloner
+#Created by Matt Allbright
+#Copies all software from the gitcloner directly into the
+#default dirs (def /usr/local/bin) and creates symlinks to appropriate folders
+
+##/bin/ creation
+##This step is unified for all systems
+#Create array of all file names in /bin/
+cd /opt/gitupdate/staging/bin
+arr=( * )
+
+#Permissions modification
+echo -en '\n'
+echo "Setting permissions for /bin/ files!"
+
+#Uses previously created array to set permissions
+for i in "${arr[@]}"; do
+
+  chmod 700 /opt/gitupdate/staging/bin/"$i"
+  echo "Completed permissions settings for "$i""
+
+done
+
+#Copy staging to deployed, overwriting any files
+echo -en '\n'
+echo "Deploying the staging directory!"
+cp /opt/gitupdate/staging/bin/* /opt/gitupdate/deployed/bin/
+
+#Symlinks all files in directory to /usr/local/bin
+echo -en '\n'
+echo "Cleaning up and creating symbolic links!"
+
+#Uses previously created array to cleanup and create symlinks
+for i in "${arr[@]}"; do
+
+  rm -rf /usr/local/bin/"$i"
+  ln -s /opt/gitupdate/deployed/bin/"$i" /usr/local/bin
+  echo "Created link for "$i""
+
+done
+
+##hostname-specific creation
+
+#Sets a variable with the hostname
+HOSTNAME=`hostname`
+
+#Determines whether or not the hostname directory exists
+if [[ -d /opt/gitupdate/staging/hostname_specific/"$HOSTNAME" ]]; then
+
+  #Create array of all file names for hostname-specific files
+  cd /opt/gitupdate/staging/hostname_specific/"$HOSTNAME"
+  arr=( * )
+
+  #Permissions modification
+  echo -en '\n'
+  echo "Setting permissions for hostname-specific files!"
+
+  #Uses previously created array to set permissions
+  for i in "${arr[@]}"; do
+
+    chmod 700 /opt/gitupdate/staging/hostname_specific/"$HOSTNAME"/"$i"
+    echo "Completed permissions settings for "$i""
+
+  done
+
+  #Copy staging to deployed, overwriting any files
+  echo -en '\n'
+  echo "Deploying the hostname-specific staging directory!"
+  cp /opt/gitupdate/staging/hostname_specific/"$HOSTNAME"/* /opt/gitupdate/deployed/hostname_specific/"$HOSTNAME"/
+
+  #Symlinks all files in directory to /usr/local/bin
+  echo -en '\n'
+  echo "Cleaning up and creating hostname-specific symbolic links!"
+
+  #Uses previously created array to cleanup and create symlinks
+  for i in "${arr[@]}"; do
+
+    rm -rf /usr/local/bin/"$i"
+    ln -s /opt/gitupdate/deployed/hostname_specific/"$HOSTNAME"/"$i" /usr/local/bin
+    echo "Created link for "$i""
+
+  done
+
+#For non-hostname specific computers
+else
+
+  #Generic debug msg
+  echo -en '\n'
+  echo "No hostname-specific files detected!"
+
+fi
+
+#Cleaup step
+echo -en '\n'
+echo "All tasks completed!"
+
+exit
