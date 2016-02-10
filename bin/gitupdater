@@ -69,7 +69,7 @@ if [[ -d /opt/gitupdate/staging/hostname_specific/"$HOSTNAME" ]]; then
   echo "Deploying the hostname-specific staging directory!"
 
   #Creates deployment directory
-  mkdir /opt/gitupdate/deployed/hostname_specific/"$HOSTNAME"
+  mkdir -p /opt/gitupdate/deployed/hostname_specific/"$HOSTNAME"
 
   #Copies the files
   cp /opt/gitupdate/staging/hostname_specific/"$HOSTNAME"/* /opt/gitupdate/deployed/hostname_specific/"$HOSTNAME"/

@@ -26,7 +26,7 @@
     #Makes folder for git clone to deploy to
     echo -en '\n'
     echo "Creating deployment directory!"
-    mkdir /opt/gitupdate/deployed
+    mkdir -p /opt/gitupdate/deployed/bin
     mkdir /opt/gitupdate/bin
 
   fi
