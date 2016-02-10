@@ -4,17 +4,25 @@
 #Designed to streamline the process of running git commands and Deploying
 #them in the SCAN Lab
 
+echo "Starting new git update process..."
+
+echo "Executing gitcloner..."
+
 #Runs gitcloner
 bash /opt/gitupdate/staging/bin/gitcloner
 
 #Wait for gitcloner to finish all its processes
 wait
 
+echo "Resetting permissions..."
+
 #Set permissions for all files in /staging/
 chmod -R 775 /opt/gitupdate/staging/
 
 #Determines whether or not gitupdater exists before executing
 if [[ -e /opt/gitupdate/staging/bin/gitupdater ]]; then
+
+  echo "Executing gitupdater..."
 
   #Executes the gitupdater script
   bash /opt/gitupdate/staging/bin/gitupdater
@@ -25,3 +33,5 @@ else
   echo "The script gitupdater does not appear to have downloaded properly!"
 
 fi
+
+echo "All actions completed."
