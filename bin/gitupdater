@@ -25,7 +25,12 @@ done
 #Copy staging to deployed, overwriting any files
 echo -en '\n'
 echo "Deploying the staging directory!"
-mkdir /opt/gitupdate/deployed/bin
+
+#Makes the directory if it doesn't exist
+if [ ! -d /opt/gitupdate/deployed/bin ]; then
+  mkdir /opt/gitupdate/deployed/bin
+fi
+
 cp /opt/gitupdate/staging/bin/* /opt/gitupdate/deployed/bin/
 
 #Symlinks all files in directory to /usr/local/bin
