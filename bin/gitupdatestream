@@ -5,7 +5,7 @@
 #them in the SCAN Lab
 
 #Runs gitcloner
-./opt/gitupdate/staging/bin/gitcloner
+bash /opt/gitupdate/staging/bin/gitcloner
 
 #Wait for gitcloner to finish all its processes
 wait
@@ -17,7 +17,7 @@ chmod -R 775 /opt/gitupdate/staging/
 if [[ -e /opt/gitupdate/staging/bin/gitupdater ]]; then
 
   #Executes the gitupdater script
-  ./opt/gitupdate/staging/bin/gitupdater
+  bash /opt/gitupdate/staging/bin/gitupdater
 
 else
 
