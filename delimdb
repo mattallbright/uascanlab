@@ -22,7 +22,7 @@ echo "Creating new database file."
 touch database
 
 #Add all the top values
-echo "FA.fminor       MD.fminor       FA.lh.atr       MD.lh.atr       FA.lh.cab       MD.lh.cab       FA.lh.ccg       MD.lh.ccg       FA.lh.cst       MD.lh.cst       FA.lh.ilf       MD.lh.ilf       FA.lh.slfp      MD.lh.slfp      FA.lh.slft      MD.lh.slft      FA.lh.unc       MD.lh.unc       FA.rh.atr       MD.rh.atr       FA.rh.cab       MD.rh.cab       FA.rh.ccg       MD.rh.ccg       FA.rh.cst       MD.rh.cst       FA.rh.ilf       MD.rh.ilf       FA.rh.slfp      MD.rh.slfp      FA.rh.slft      MD.rh.slft      FA.rh.unc       MD.rh.unc" >> database
+echo -e "FA.fminor \t MD.fminor \t FA.lh.atr \t MD.lh.atr \t FA.lh.cab \t MD.lh.cab \t FA.lh.ccg \t MD.lh.ccg \t FA.lh.cst \t MD.lh.cst \t FA.lh.ilf \t MD.lh.ilf \t FA.lh.slfp \t MD.lh.slfp \t FA.lh.slft \t MD.lh.slft \t FA.lh.unc \t  MD.lh.unc \t  FA.rh.atr \t  MD.rh.atr \t  FA.rh.cab \t  MD.rh.cab \t  FA.rh.ccg \t  MD.rh.ccg \t  FA.rh.cst \t  MD.rh.cst \t  FA.rh.ilf \t  MD.rh.ilf \t  FA.rh.slfp \t MD.rh.slfp \t FA.rh.slft \t MD.rh.slft \t FA.rh.unc \t  MD.rh.unc" >> database
 
 #For each value in array, read second line and add to darabase file
 for i in "${arr[@]}"; do
