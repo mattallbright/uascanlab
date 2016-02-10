@@ -28,7 +28,7 @@ echo -e "Partic\tFA.fminor\tMD.fminor\tFA.lh.atr\tMD.lh.atr\tFA.lh.cab\tMD.lh.ca
 for i in "${arr[@]}"; do
   echo -en '\n'
   echo "Creating line for "$i"..."
-  sed -en 's/^/"$i    "/' -e '2{p;q;}' /mnt/data1/TBIMODEL/TRACULA/tractography_output/"$i"/stats/ALLTRACTS_"$i" >> database
+  sed -e 's/^/"$i    "/' -en '2{p;q;}' /mnt/data1/TBIMODEL/TRACULA/tractography_output/"$i"/stats/ALLTRACTS_"$i" >> database
   echo -en '\n'
   echo "Line created."
 done
