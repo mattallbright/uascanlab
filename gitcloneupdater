@@ -1,4 +1,0 @@
-#!/bin/bash
-#Interim fix for all computers
-
-./opt/gitupdate/staging/bin/gitcloner
