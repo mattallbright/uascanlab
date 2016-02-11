@@ -4,16 +4,51 @@
 #Designed to streamline the process of running git commands and Deploying
 #them in the SCAN Lab
 
+#Check if git is installed.
+yum -q list installed git
+
+#Determines if git is installed, installs if exit code is not 0 (Installed).
+if [[ echo $? -eq 0 ]]; then
+
+  echo "Git is installed. Proceeding with update."
+
+else
+
+  echo "Git is required for this setup and will now install in 5 seconds."
+  echo "If you do not want to install git, please crash this process (Ctrl-C)."
+
+  wait 5
+  
+  yum -y install git
+
+fi
+
+echo -en '\n'
 echo "Starting new git update process..."
 
-echo "Executing gitcloner..."
+#Determines whether or not gitcloner exists before executing
+if [[ ! -e /opt/gitupdate/staging/bin/gitcloner ]]; then
 
-#Runs gitcloner
-bash /opt/gitupdate/staging/bin/gitcloner
+  echo -en '\n'
+  echo "The script gitcloner does not appear to have downloaded properly!"
+  echo "Downloading from git!"
+
+  git clone "git://github.com/mattallbright/uascanlab" /opt/gitupdate/staging/
+
+else
+
+  echo -en '\n'
+  echo "Executing gitcloner..."
+
+  #Executes the gitcloner script
+  bash /opt/gitupdate/staging/bin/gitcloner
+
+fi
 
 #Wait for gitcloner to finish all its processes
 wait
 
+echo -en '\n'
 echo "Resetting permissions..."
 
 #Set permissions for all files in /staging/
@@ -22,6 +57,7 @@ chmod -R 775 /opt/gitupdate/staging/
 #Determines whether or not gitupdater exists before executing
 if [[ -e /opt/gitupdate/staging/bin/gitupdater ]]; then
 
+  echo -en '\n'
   echo "Executing gitupdater..."
 
   #Executes the gitupdater script
