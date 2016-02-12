@@ -1,0 +1,60 @@
+#!/bin/bash
+#sgeassistant
+#Created by Matt Allbright
+#Reloads /opt/sge mount and restarts iptables
+#When tied to sgeexecd, performs on boot
+
+SGE_ROOT=/opt/sge; export SGE_ROOT
+SGE_CELL=default; export SGE_CELL
+unset SGE_QMASTER_PORT
+unset SGE_EXECD_PORT
+
+#Specifies number of files
+number_of_files="$(ls -A $SGE_ROOT | wc -l)"
+
+#Determines whether SGE_ROOT is mounted
+if grep -qs "$SGE_ROOT" /proc/mounts; then
+
+	#Determines whether the mount has files
+        if [ "$number_of_files" -eq 0 ]; then
+                echo "SGE is mounted improperly. Attempting to remount."
+                umount "$SGE_ROOT"
+
+		#If mount is busy, lazy umount
+                if umount "$SGE_ROOT" | grep "busy"; then
+                        umount -l "$SGE_ROOT"
+                fi
+                mount "$SGE_ROOT"
+        fi
+        echo "SGE is mounted."
+
+#Mounting system
+else
+        echo "SGE is currently not mounted. Mounting..."
+        mount "$SGE_ROOT"
+
+	#If error code is 0, it tells you it worked
+        if [ $? -eq 0 ]; then
+                echo "SGE was mounted successfully."
+        else
+                echo "An error occurred. Please check your mounts!"
+
+        fi
+fi
+
+#Resets iptables and network
+service iptables restart
+service network restart
+
+#Pings qmaster for status
+if /opt/sge/bin/lx-amd64/qping -info norman 6444 qmaster 1 | grep "status:" | grep -v '0'; then
+        echo -en '\n'
+        echo "Your qmaster is not running. Please restart service on head node."
+        echo -en '\n'
+        exit 1
+fi
+
+#Debug message
+echo -en '\n'
+echo "Your qmaster is running properly. Continuing with the service restart."
+echo -en '\n'
