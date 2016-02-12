@@ -7,8 +7,11 @@
 #Check if git is installed.
 yum -q list installed git
 
+GITREQ=$?
+echo "$GITREQ"
+
 #Determines if git is installed, installs if exit code is not 0 (Installed).
-if [ echo "$?" -eq 0 ]; then
+if [ $GITREQ == 0 ]; then
 
   echo "Git is installed. Proceeding with update."
 
