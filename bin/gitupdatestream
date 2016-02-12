@@ -8,7 +8,7 @@
 yum -q list installed git
 
 #Determines if git is installed, installs if exit code is not 0 (Installed).
-if [ echo "$?" == 0 ]; then
+if [ echo "$?" -eq 0 ]; then
 
   echo "Git is installed. Proceeding with update."
 
