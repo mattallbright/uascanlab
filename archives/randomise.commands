@@ -1,0 +1,117 @@
+randomise -i all_FA_skeletonised -o tbss_age -m mean_FA_skeleton_mask -d design_age.mat -t design_age.con -n 5000 --T2 -V
+
+randomise -i all_FA_skeletonised -o tbss_age_covgenIQ -m mean_FA_skeleton_mask -d design_age_covgenIQ.mat -t design_age_covgenIQ.con -n 5000 --T2 -V
+
+randomise -i all_FA_skeletonised -o tbss_EQi -m mean_FA_skeleton_mask -d design_EQi.mat -t design_EQi.con -n 5000 --T2 -V
+
+randomise -i all_FA_skeletonised -o tbss_gend_cov_ageIQ -m mean_FA_skeleton_mask -d design_gend_cov_ageIQ.mat -t design_gend_cov_ageIQ.con -n 5000 --T2 -V
+
+randomise -i all_FA_skeletonised -o tbss_gender -m mean_FA_skeleton_mask -d design_gender.mat -t design_gender.con -n 5000 --T2 -V
+
+randomise -i all_FA_skeletonised -o tbss_IQ -m mean_FA_skeleton_mask -d design_IQ.mat -t design_IQ.con -n 5000 --T2 -V
+
+randomise -i all_FA_skeletonised -o tbss_IQ_cov_agegend -m mean_FA_skeleton_mask -d design_IQ_cov_agegend.mat -t design_IQ_cov_agegend.con -n 5000 --T2 -V
+
+randomise -i all_FA_skeletonised -o tbss_MSCEITfac -m mean_FA_skeleton_mask -d design_MSCEITfac.mat -t design_MSCEITfac.con -n 5000 --T2 -V
+
+randomise -i all_FA_skeletonised -o tbss_MSCEITman -m mean_FA_skeleton_mask -d design_MSCEITman.mat -t design_MSCEITman.con -n 5000 --T2 -V
+
+randomise -i all_FA_skeletonised -o tbss_MSCEITund -m mean_FA_skeleton_mask -d design_MSCEITund.mat -t design_MSCEITund.con -n 5000 --T2 -V
+
+randomise -i all_FA_skeletonised -o tbss_MSCEITperc -m mean_FA_skeleton_mask -d design_MSCEITperc.mat -t design_MSCEITperc.con -n 5000 --T2 -V
+
+randomise -i all_FA_skeletonised -o tbss_MSCEITnon_norm -m mean_FA_skeleton_mask -d design_MSCEITnon_norm.mat -t design_MSCEITnon_norm.con -n 5000 --T2 -V
+
+randomise -i all_FA_skeletonised -o tbss_MSCEITtrans_reflback -m mean_FA_skeleton_mask -d design_MSCEITtrans_reflback.mat -t design_MSCEITtrans_reflback.con -n 5000 --T2 -V
+
+randomise -i all_FA_skeletonised -o tbss_SREISman -m mean_FA_skeleton_mask -d design_SREISman.mat -t design_SREISman.con -n 5000 --T2 -V
+
+randomise -i all_FA_skeletonised -o tbss_SREISperc -m mean_FA_skeleton_mask -d design_SREISperc.mat -t design_SREISperc.con -n 5000 --T2 -V
+
+randomise -i all_FA_skeletonised -o tbss_SREISund -m mean_FA_skeleton_mask -d design_SREISund.mat -t design_SREISund.con -n 5000 --T2 -V
+
+randomise -i all_FA_skeletonised -o tbss_SREISuseofemot -m mean_FA_skeleton_mask -d design_SREISuseofemot.mat -t design_SREISuseofemot.con -n 5000 --T2 -V
+
+randomise -i all_FA_skeletonised -o tbss_WASI_raw -m mean_FA_skeleton_mask -d design_WASI_raw.mat -t design_WASI_raw.con -n 5000 --T2 -V
+
+                               design_MSCEITnon_norm.grp
+                               design_MSCEITnon_norm.mat
+design_age.con                 design_MSCEITnon_norm.png
+design_age.con~                design_MSCEITnon_norm.ppm
+design_age_covgenIQ.con        design_MSCEITperc.con
+design_age_covgenIQ_cov.png    design_MSCEITperc_cov.png
+design_age_covgenIQ_cov.ppm    design_MSCEITperc_cov.ppm
+design_age_covgenIQ.fsf        design_MSCEITperc.fsf
+design_age_covgenIQ.grp        design_MSCEITperc.grp
+design_age_covgenIQ.mat        design_MSCEITperc.mat
+design_age_covgenIQ.png        design_MSCEITperc_noage.con~
+design_age_covgenIQ.ppm        design_MSCEITperc.png
+design_age_cov.png             design_MSCEITperc.ppm
+design_age_cov.ppm             design_MSCEITtrans_reflback.con
+design_age.fsf                 design_MSCEITtrans_reflback_cov.png
+design_age.grp                 design_MSCEITtrans_reflback_cov.ppm
+design_age.mat                 design_MSCEITtrans_reflback.fsf
+design_age.png                 design_MSCEITtrans_reflback.grp
+design_age.ppm                 design_MSCEITtrans_reflback.mat
+design_EQi.con                 design_MSCEITtrans_reflback.png
+design_EQi_cov.png             design_MSCEITtrans_reflback.ppm
+design_EQi_cov.ppm             design_MSCEIT_trans_withage.con~
+design_EQi.fsf                 design_MSCEITund.con
+design_EQi.grp                 design_MSCEITund_cov.png
+design_EQi.mat                 design_MSCEITund_cov.ppm
+design_EQi.png                 design_MSCEITund.fsf
+design_EQi.ppm                 design_MSCEITund.grp
+design_gend_cov_ageIQ.con      design_MSCEITund.mat
+design_gend_cov_ageIQ_cov.png  design_MSCEITund.png
+design_gend_cov_ageIQ_cov.ppm  design_MSCEITund.ppm
+design_gend_cov_ageIQ.fsf      design_SREISman.con
+design_gend_cov_ageIQ.grp      design_SREISman_cov.png
+design_gend_cov_ageIQ.mat      design_SREISman_cov.ppm
+design_gend_cov_ageIQ.png      design_SREISman.fsf
+design_gend_cov_ageIQ.ppm      design_SREISman.grp
+design_gendercheck.con~        design_SREISman.mat
+design_gender.con              design_SREISman.png
+design_gender_cov.png          design_SREISman.ppm
+design_gender_cov.ppm          design_SREISperc.con
+design_gender.fsf              design_SREISperc_cov.png
+design_gender.grp              design_SREISperc_cov.ppm
+design_gender.mat              design_SREISperc.fsf
+design_gender.png              design_SREISperc.grp
+design_gender.ppm              design_SREISperc.mat
+design_IQ.con                  design_SREISperc.png
+design_IQ_cov_agegend.con      design_SREISperc.ppm
+design_IQ_cov_agegend_cov.png  design_SREISsoc.con
+design_IQ_cov_agegend_cov.ppm  design_SREISsoc_cov.png
+design_IQ_cov_agegend.fsf      design_SREISsoc_cov.ppm
+design_IQ_cov_agegend.grp      design_SREISsoc.fsf
+design_IQ_cov_agegend.mat      design_SREISsoc.grp
+design_IQ_cov_agegend.png      design_SREISsoc.mat
+design_IQ_cov_agegend.ppm      design_SREISsoc.png
+design_IQ_cov.png              design_SREISsoc.ppm
+design_IQ_cov.ppm              design_SREIStot.con
+design_IQ.fsf                  design_SREIStot_cov.png
+design_IQ.grp                  design_SREIStot_cov.ppm
+design_IQ.mat                  design_SREIStot.fsf
+design_IQ.png                  design_SREIStot.grp
+design_IQ.ppm                  design_SREIStot.mat
+design_MSCEITfac.con           design_SREIStot.png
+design_MSCEITfac_cov.png       design_SREIStot.ppm
+design_MSCEITfac_cov.ppm       design_SREISuseofemot.con
+design_MSCEITfac.fsf           design_SREISuseofemot_cov.png
+design_MSCEITfac.grp           design_SREISuseofemot_cov.ppm
+design_MSCEITfac.mat           design_SREISuseofemot.fsf
+design_MSCEITfac.png           design_SREISuseofemot.grp
+design_MSCEITfac.ppm           design_SREISuseofemot.mat
+design_MSCEITman.con           design_SREISuseofemot.png
+design_MSCEITman_cov.png       design_SREISuseofemot.ppm
+design_MSCEITman_cov.ppm       design_WASI_raw_cov.png
+design_MSCEITman.fsf           design_WASI_raw_cov.ppm
+design_MSCEITman.grp           design_WASI_raw.png
+design_MSCEITman.mat           design_WASI_raw.ppm
+design_MSCEITman.png           mean_FA_mask.nii.gz
+design_MSCEITman.ppm           mean_FA.nii.gz
+design_MSCEITnon_norm.con      mean_FA_skeleton_mask_dst.nii.gz
+design_MSCEITnon_norm_cov.png  mean_FA_skeleton_mask.nii.gz
+design_MSCEITnon_norm_cov.ppm  mean_FA_skeleton.nii.gz
+design_MSCEITnon_norm.fsf
+

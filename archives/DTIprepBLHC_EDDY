@@ -1,0 +1,116 @@
+#!/bin/bash
+
+cd /
+
+#Choose Participant
+echo -en '\n'
+ls ./data/BLHC/RAW_data
+echo -en '\n'
+echo "Which participant?"; read PARTIC
+
+DTIRAW=`find ./data/BLHC/RAW_data/$PARTIC/ -iname "DTI_72_DIRS_A-P_*" -not -iname "*ADC*" -not -iname "*COLFA*" -not -iname "*FA*" -not -iname "*TENSOR*" -not -iname "*TRACEW*" -print | sed 's/.*\///'`
+
+DTIRAWPA=`find ./data/BLHC/RAW_data/$PARTIC/ -iname "DTI_P-A*" | sed 's/.*\///'`
+
+#Delete any pre-existing nifti files in raw directory
+	cd ./data/BLHC/RAW_data/$PARTIC/"$DTIRAW"
+	find ./ -iname '*.nii' | xargs rm -f
+	find ./ -iname '*.bvec' | xargs rm -f
+	find ./ -iname '*.bval' | xargs rm -f
+	cd /
+
+#Delete any pre-existing nifti files in raw PA directory
+	cd ./data/BLHC/RAW_data/$PARTIC/"$DTIRAWPA"
+	find ./ -iname '*.nii' | xargs rm -f
+	cd /
+
+#Delete any pre-existing nifti files in analysis directory
+	cd ./data/BLHC/dti_72_preproc
+	if [ -d ./"$PARTIC" ]; then	
+		cd ./$PARTIC
+		find ./ -iname '*.nii' | xargs rm -f
+		find ./ -iname '*.bvec' | xargs rm -f
+		find ./ -iname '*.bval' | xargs rm -f
+	fi
+	cd /
+
+#Create a dti analysis directory for participant
+	cd ./data/BLHC/dti_72_preproc
+	if [ ! -d ./"$PARTIC" ]; then
+		mkdir ./"$PARTIC"
+	fi
+	cd
+	cd /
+
+#Convert dcm to nifti for a given participant
+	cd ./data/BLHC/
+
+	find ./RAW_data/$PARTIC/"$DTIRAW" -iname '*.IMA' -print | ../dcm2nii -g y $(xargs)
+
+	#Navigate to raw data directory for the participant
+	cd ./RAW_data/$PARTIC/"$DTIRAW"
+
+	#Rename converted nifti file to "blip_up"
+	find ./ -iname '*.nii.gz' -print | mv $(xargs) 'blip_up.nii.gz'
+
+	#Rename bvecs file to "Data1_bvec"
+	find ./ -iname '*.bvec' -print | mv $(xargs) 'Data1.bvec'
+
+	#Rename bval file to "Data1_bval"
+	find ./ -iname '*.bval' -print | mv $(xargs) 'Data1.bval'
+
+#Select the converted nifti file and move it to the participant's individual analysis folder for the task
+	cp ./blip_up.nii.gz ../../../dti_72_preproc/$PARTIC/
+	cp ./Data1.bvec ../../../dti_72_preproc/$PARTIC/
+	cp ./Data1.bval ../../../dti_72_preproc/$PARTIC/
+
+cd /
+
+#Convert dcm to nifti for the PA reverse phase encoding for a given participant
+	cd ./data/BLHC/
+
+	find ./RAW_data/$PARTIC/"$DTIRAWPA" -iname '*.IMA' -print | ../dcm2nii -g y $(xargs)
+
+	#Navigate to raw data directory for the participant
+	cd ./RAW_data/$PARTIC/"$DTIRAWPA"
+
+	#Rename converted nifti file to "Data1"
+	find ./ -iname '*.nii.gz' -print | mv $(xargs) 'blip_down.nii.gz'
+
+	cp ./blip_down.nii.gz ../../../dti_72_preproc/$PARTIC/
+	
+	#Navigate to participant's directory
+	cd /
+	cd ./data/BLHC/dti_72_preproc/$PARTIC
+	
+#Check converted image in fslview while eddy correcting
+	fslview blip_up.nii.gz &
+
+#Create b0_blip_up and b0_blip_down
+fslroi blip_up b0_blip_up 0 1
+fslroi blip_down b0_blip_down 0 1
+fslmerge -t both_b0 b0_blip_up b0_blip_down
+
+#create acqparams.txt file
+printf "0 -1 0 0.12032\n0 1 0 0.12032" > acqparams.txt 
+
+#Run TOPUP
+topup --imain=both_b0 --datain=acqparams.txt --config=$FSLDIR/etc/flirtsch/b02b0.cnf --out=my_topup_results --iout=my_hifi_b0
+
+fslmaths my_hifi_b0 -Tmean my_hifi_b0
+bet my_hifi_b0 my_hifi_b0_brain -m
+
+#Create index file
+indx=""
+for ((i=1; i<=74; i+=1)); do indx="$indx 1"; done
+echo $indx > index1.txt
+
+#EDDY
+eddy --imain=blip_up --mask=my_hifi_b0_brain_mask --acqp=acqparams.txt --index=index1.txt --bvecs=Data1.bvec --bvals=Data1.bval --topup=my_topup_results --out=eddy_corrected_data
+
+#Brain extraction
+	bet2 eddy_corrected_data.nii.gz Data1.bet -m -f 0.3
+
+#DTIFIT
+	dtifit -k eddy_corrected_data.nii.gz -o blip_up -m Data1.bet_mask.nii.gz -r Data1.bvec -b Data1.bval
+

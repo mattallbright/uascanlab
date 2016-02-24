@@ -1,0 +1,190 @@
+#!/bin/bash
+
+#Welcome
+echo -en '\n'
+echo "Welcome to CONVERTIT. This simple UNIX script will quickly convert dcm images"
+echo "to nifti, move and rename those nifti images to their respective individual"
+echo "analysis directory, and prepare them for analysis in SPM. This version will" 
+echo "populate all images (BOLD and anatomical) for all tasks for a given participant."
+echo "Type cntrl+c at any time to stop the script."
+echo -en '\n'
+
+cd ../..
+
+#Choose study
+echo -en '\n'
+ls ./data/
+echo -en '\n'
+echo "Which study?"; read STUDY
+
+#Choose Participant
+echo -en '\n'
+ls ./data/$STUDY/RAW_data
+echo -en '\n'
+echo "Which participant?"; read PARTIC
+
+#Create Participant's individual analysis directory from template "x"
+cd ./data/$STUDY/indiv_analysis/
+cp -R ./x ./$PARTIC
+cd ../../..
+
+#Anatomical
+	#Delete any pre-existing nifti files in directory
+	cd ./data/$STUDY/RAW_data/$PARTIC/"Mclean Research Brennan"/"T1_mprage_1mm - 2"/
+	find ./ -iname '*.nii' | xargs rm -f
+	cd
+	cd ../..
+
+	#Delete any pre-existing nifti files in individual analysis directory
+	cd ./data/$STUDY/indiv_analysis/$PARTIC/3danat_msit/
+	find ./ -iname '*.nii' | xargs rm -f
+	cd
+	cd ../..
+
+	#Convert dcm to nifti for a given participant and BOLD task
+	find ./data/$STUDY/RAW_data/$PARTIC/"Mclean Research Brennan"/"T1_mprage_1mm - 2"/ -iname '*.dcm' -print | ./home/scanlab/dcm2nii $(xargs)
+
+	#Navigate to raw data directory for the participant's task
+	cd ./data/$STUDY/RAW_data/$PARTIC/"Mclean Research Brennan"/"T1_mprage_1mm - 2"/
+
+	#Select the converted nifti file and move it to the participant's individual analysis folder for the task
+	find ./ -not -iname "co*" -not -iname "o*" -iname '*.nii' | xargs cp -t ../../../../indiv_analysis/$PARTIC/3danat_msit/
+
+	#Navigate to the nifiti file in the participant's BOLD directory for the task.
+	cd ../../../../indiv_analysis/$PARTIC/3danat_msit/
+
+	#Rename converted nifti file
+	find ./ -iname '*.nii' -print | mv $(xargs) "$PARTIC"_Anatomical.nii
+	
+	#Copy to other anatomical task folders
+	find ./ -iname '*.nii' -print | xargs cp -t ../3danat_nback/
+	find ./ -iname '*.nii' -print | xargs cp -t ../3danat_rest/
+	find ./ -iname '*.nii' -print | xargs cp -t ../3danat_sberg/
+
+	#Return to root directory
+	cd ../../../../../../
+
+		#nback BOLD Baseline
+		#Delete any pre-existing nifti files in RAW data directory
+		cd ./data/$STUDY/RAW_data/$PARTIC/"Mclean Research Brennan"/"NBACK - 7"/
+		find ./ -iname '*.nii' | xargs rm -f
+		cd
+		cd ../..
+		
+		#Delete any pre-existing nifti files in individual analysis directory
+		cd ./data/$STUDY/indiv_analysis/$PARTIC/bold/nback/
+		find ./ -iname '*.nii' | xargs rm -f
+		cd
+		cd ../..
+
+		#Convert dcm to nifti for a given participant and BOLD task
+		find ./data/$STUDY/RAW_data/$PARTIC/"Mclean Research Brennan"/"NBACK - 7"/ -iname '*.dcm' -print | ./home/scanlab/dcm2nii $(xargs)
+
+		#Navigate to raw data directory for the participant's task
+		cd ./data/$STUDY/RAW_data/$PARTIC/"Mclean Research Brennan"/"NBACK - 7"/
+
+		#Select the converted nifti file and move it to the participant's individual analysis folder for the task
+		find ./ -iname '*.nii' | xargs cp -t ../../../../indiv_analysis/$PARTIC/bold/nback/
+
+		#Navigate to the nifiti file in the participant's BOLD directory for the task.
+		cd ../../../../indiv_analysis/$PARTIC/bold/nback/
+
+		#Rename converted nifti file
+		find ./ -iname '*.nii' -print | mv $(xargs) nback_RAW_"$PARTIC".nii
+
+		#Return to root directory
+		cd ../../../../../../
+
+		#sberg BOLD Baseline
+		#Delete any pre-existing nifti files in RAW data directory
+		cd ./data/$STUDY/RAW_data/$PARTIC/"Mclean Research Brennan"/"Sternberg - 9"/
+		find ./ -iname '*.nii' | xargs rm -f
+		cd
+		cd ../..
+		
+		#Delete any pre-existing nifti files in individual analysis directory
+		cd ./data/$STUDY/indiv_analysis/$PARTIC/bold/sberg/
+		find ./ -iname '*.nii' | xargs rm -f
+		cd
+		cd ../..
+
+		#Convert dcm to nifti for a given participant and BOLD task
+		find ./data/$STUDY/RAW_data/$PARTIC/"Mclean Research Brennan"/"Sternberg - 9"/ -iname '*.dcm' -print | ./home/scanlab/dcm2nii $(xargs)
+
+		#Navigate to raw data directory for the participant's task
+		cd ./data/$STUDY/RAW_data/$PARTIC/"Mclean Research Brennan"/"Sternberg - 9"/
+
+		#Select the converted nifti file and move it to the participant's individual analysis folder for the task
+		find ./ -iname '*.nii' | xargs cp -t ../../../../indiv_analysis/$PARTIC/bold/sberg/
+
+		#Navigate to the nifiti file in the participant's BOLD directory for the task.
+		cd ../../../../indiv_analysis/$PARTIC/bold/sberg/
+
+		#Rename converted nifti file
+		find ./ -iname '*.nii' -print | mv $(xargs) nback_RAW_"$PARTIC".nii
+
+		#Return to root directory
+		cd ../../../../../../
+
+		#msit BOLD Baseline
+		#Delete any pre-existing nifti files in directory
+		cd ./data/$STUDY/RAW_data/$PARTIC/"Mclean Research Brennan"/"MSIT - 5"/
+		find ./ -iname '*.nii' | xargs rm -f
+		cd
+		cd ../..
+
+		#Delete any pre-existing nifti files in individual analysis directory
+		cd ./data/$STUDY/indiv_analysis/$PARTIC/bold/msit/
+		find ./ -iname '*.nii' | xargs rm -f
+		cd
+		cd ../..
+
+		#Convert dcm to nifti for a given participant and BOLD task
+		find ./data/$STUDY/RAW_data/$PARTIC/"Mclean Research Brennan"/"MSIT - 5"/ -iname '*.dcm' -print | ./home/scanlab/dcm2nii $(xargs)
+
+		#Navigate to raw data directory for the participant's task
+		cd ./data/$STUDY/RAW_data/$PARTIC/"Mclean Research Brennan"/"MSIT - 5"/
+
+		#Select the converted nifti file and move it to the participant's individual analysis folder for the task
+		find ./ -iname '*.nii' | xargs cp -t ../../../../indiv_analysis/$PARTIC/bold/msit/
+
+		#Navigate to the nifiti file in the participant's BOLD directory for the task.
+		cd ../../../../indiv_analysis/$PARTIC/bold/msit/
+
+		#Rename converted nifti file
+		find ./ -iname '*.nii' -print | mv $(xargs) msit_RAW_"$PARTIC".nii
+
+		#Return to root directory
+		cd ../../../../../../
+		
+		#Resting BOLD Baseline
+		#Delete any pre-existing nifti files in directory
+		cd ./data/$STUDY/RAW_data/$PARTIC/"Mclean Research Brennan"/"Resting - 11"/
+		find ./ -iname '*.nii' | xargs rm -f
+		cd
+		cd ../..
+
+		#Delete any pre-existing nifti files in individual analysis directory
+		cd ./data/$STUDY/indiv_analysis/$PARTIC/bold/rest/
+		find ./ -iname '*.nii' | xargs rm -f
+		cd
+		cd ../..
+
+		#Convert dcm to nifti for a given participant and BOLD task
+		find ./data/$STUDY/RAW_data/$PARTIC/"Mclean Research Brennan"/"Resting - 11"/ -iname '*.dcm' -print | ./home/scanlab/dcm2nii $(xargs)
+
+		#Navigate to raw data directory for the participant's task
+		cd ./data/$STUDY/RAW_data/$PARTIC/"Mclean Research Brennan"/"Resting - 11"/
+
+		#Select the converted nifti file and move it to the participant's individual analysis folder for the task
+		find ./ -iname '*.nii' | xargs cp -t ../../../../indiv_analysis/$PARTIC/bold/rest/
+
+		#Navigate to the nifiti file in the participant's BOLD directory for the task.
+		cd ../../../../indiv_analysis/$PARTIC/bold/rest/
+
+		#Rename converted nifti file
+		find ./ -iname '*.nii' -print | mv $(xargs) "rest_RAW_$PARTIC".nii
+
+		#Return to root directory
+		cd ../../../../../../
+

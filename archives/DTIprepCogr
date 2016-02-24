@@ -1,0 +1,75 @@
+#!/bin/bash
+
+cd ../..
+
+#Choose Participant
+echo -en '\n'
+ls ./data/Cogr/RAW_data
+echo -en '\n'
+echo "Which participant?"; read PARTIC
+
+#Delete any pre-existing nifti files in raw directory
+	cd ./data/Cogr/RAW_data/$PARTIC/"Mclean Research Killgore"/"dti-mgh-72-8-gr2 - 15"
+	find ./ -iname '*.nii' | xargs rm -f
+	find ./ -iname '*.bvec' | xargs rm -f
+	find ./ -iname '*.bval' | xargs rm -f
+	cd
+	cd ../..
+
+#Delete any pre-existing nifti files in analysis directory
+	cd ./data/Cogr/dti_72_preproc
+	if [ -d ./"$PARTIC" ]; then	
+		cd ./$PARTIC
+		find ./ -iname '*.nii' | xargs rm -f
+		find ./ -iname '*.bvec' | xargs rm -f
+		find ./ -iname '*.bval' | xargs rm -f
+	fi
+	cd
+	cd ../..
+
+#Create a dti analysis directory for participant
+	cd ./data/Cogr/dti_72_preproc
+	if [ ! -d ./"$PARTIC" ]; then
+		mkdir ./"$PARTIC"
+	fi
+	cd
+	cd ../..
+
+#Convert dcm to nifti for a given participant
+	find ./data/Cogr/RAW_data/$PARTIC/"Mclean Research Killgore"/"dti-mgh-72-8-gr2 - 15" -iname '*.dcm' -print | ./home/scanlab/dcm2nii -g y $(xargs)
+
+	#Navigate to raw data directory for the participant
+	cd ./data/Cogr/RAW_data/$PARTIC/"Mclean Research Killgore"/"dti-mgh-72-8-gr2 - 15"
+
+	#Rename converted nifti file to "Data1"
+	find ./ -iname '*.nii.gz' -print | mv $(xargs) 'Data1.nii.gz'
+
+	#Rename bvecs file to "Data1_bvec"
+	find ./ -iname '*.bvec' -print | mv $(xargs) 'Data1.bvec'
+
+	#Rename bval file to "Data1_bval"
+	find ./ -iname '*.bval' -print | mv $(xargs) 'Data1.bval'
+
+	#Select the converted nifti file and move it to the participant's individual analysis folder for the task
+	cp ./Data1.nii.gz ../../../../dti_72_preproc/$PARTIC/
+	cp ./Data1.bvec ../../../../dti_72_preproc/$PARTIC/
+	cp ./Data1.bval ../../../../dti_72_preproc/$PARTIC/
+	
+	#Navigate to participant's directory
+	cd ../../../../dti_72_preproc/$PARTIC
+	
+#Check converted image in fslview while eddy correcting
+	fslview Data1.nii.gz &
+
+#Eddy correct
+	eddy_correct Data1.nii.gz Data1_eddy 0
+
+#Rotate bvecs
+	fdt_rotate_bvecs Data1.bvec Data1_rotated_bvec.bvec Data1_eddy.ecclog
+
+#Brain extraction
+	bet Data1_eddy.nii.gz Data1.bet -m -f 0.3
+
+#DTIFIT
+	dtifit -k Data1_eddy.nii.gz -o Data1.nii.gz -m Data1.bet_mask.nii.gz -r Data1_rotated_bvec.bvec -b Data1.bval
+

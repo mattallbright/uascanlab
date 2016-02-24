@@ -1,0 +1,69 @@
+#!/bin/bash
+
+cd /
+
+#Choose TBSS folder
+echo -en '\n'
+ls ./data2/emot/TBSS
+echo -en '\n'
+echo "Which Folder?"; read FOLDER
+
+## insert main folder where you ran TBSS
+## just above "stats/" and "FA/"
+maindir="./data2/emot/TBSS/"$FOLDER""
+list=`find $maindir -wholename "*/FA/*_FA_mask.nii.gz"`
+
+## insert full path to mean_FA, skeleton mask and distance map
+mean_FA="./stats/mean_FA.nii.gz"
+mask="./stats/mean_FA_skeleton.nii.gz"
+dst_map="./stats/mean_FA_skeleton_mask_dst.nii.gz"
+
+##############
+cd $maindir
+
+rm Proj_Dist.txt
+
+touch Proj_Dist.txt
+
+echo "ID" "Mean_Squared" "Max_Squared" >> Proj_Dist.txt
+
+## for each FA map
+for FAmap in ${list}
+do
+	base=`echo $FAmap | awk 'BEGIN {FS="/FA_"}; {print $NF}' | awk 'BEGIN {FS="_"}; {print $1}'`
+	dst_out="dst_vals_"$base""
+
+	# get Proj Dist images
+	tbss_skeleton -d -i $mean_FA -p 0.2 $dst_map $FSLDIR/data/standard/LowerCingulum_1mm ../../../../$FAmap $dst_out -s $mask
+
+	#X direction
+	Xout=""squared_X_"$base"
+	file=""$dst_out"_search_X.nii.gz"
+	fslmaths $file -mul $file $Xout
+
+	#Y direction
+	Yout=""squared_Y_"$base"
+	file=""$dst_out"_search_Y.nii.gz"
+	fslmaths $file -mul $file $Yout
+
+	#Z direction
+	Zout=""squared_Z_"$base"
+	file=""$dst_out"_search_Z.nii.gz"
+	fslmaths $file -mul $file $Zout
+
+	#Overall displacement
+	Tout=""Total_ProjDist_"$base"
+	fslmaths $Xout -add $Yout -add $Zout $Tout
+
+	# store extracted distances
+	mean=`fslstats -t $Tout -k $mask -m`
+	max=`fslstats -t $Tout -R | awk '{print $2}'`
+	echo "$base $mean $max" >> Proj_Dist.txt
+
+	# remove X Y Z images
+	rm ./dst_vals_*.nii.gz
+	rm ./squared_*.nii.gz
+	
+	echo "file $Tout done"
+done
+gedit ./Proj_Dist.txt

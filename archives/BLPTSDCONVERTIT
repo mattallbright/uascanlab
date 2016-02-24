@@ -1,0 +1,944 @@
+#!/bin/sh
+
+##script should be given execute permissions and should be located in the data directory!
+#Welcome
+echo -en '\n'
+echo "Welcome to CONVERTIT. This simple UNIX script will quickly convert dcm images"
+echo "to nifti, move and rename those nifti images to their respective individual"
+echo "analysis directory, and prepare them for analysis in SPM. This version will" 
+echo "populate all images (BOLD and anatomical) for all tasks for a given participant."
+echo "Type cntrl+c at any time to stop the script."
+echo -en '\n'
+
+#Choose Participant
+echo -en '\n'
+ls /data/BLPTSD/RAW_data
+echo -en '\n'
+echo "Which participant? (If not shown above, type in participant's number -- BLPTSD_XXX -- to search Hermes)"
+read PARTIC
+
+echo -en '\n'
+
+echo "Which visit? (Baseline=1 or PostTX=2)"
+read VISITNUM
+
+#Set VISIT to proper value
+if [ $VISITNUM -eq 1 ]; then
+	VISIT=Baseline
+elif [ $VISITNUM -eq 2 ]; then
+	VISIT=PostTX
+else
+	VISIT="a nonvalid value. Good job."
+	echo "Nah dude, didn't work.  Try running the program again."
+	exit
+fi
+
+#Check if participant RAW_directory exists for Baseline. If not, find Participant's raw dicom directory from Hermes mount and copy to BLPTSD RAW_data
+
+##IF Baseline Visit Data
+if [ $VISITNUM -eq 1 ] && [ ! -d /data/BLPTSD/RAW_data/"$PARTIC" ]; then
+	Num=`echo $PARTIC | grep -Eo '[0-9][0-9][0-9]'`
+	OSIRIX=`find /Hermes/BLPTSD_scans -maxdepth 1 -iname "*$Num*" -print | sort | tail -1 | sed 's/.*\///'`
+	cd /Hermes/BLPTSD_scans/"$OSIRIX"
+	target_dir=`ls /Hermes/BLPTSD_scans/"$OSIRIX"`
+	cp -a "$target_dir" /data/BLPTSD/RAW_data
+	mv /data/BLPTSD/RAW_data/"$target_dir" /data/BLPTSD/RAW_data/"$PARTIC"
+
+#Check if participant RAW_directory exists for PostTX. If not, find Participant's raw dicom directory from Hermes mount and copy to BLPTSD RAW_data
+elif [ $VISITNUM -eq 2 ] && [ ! -d /data/BLPTSD/RAW_data/"$PARTIC"_2 ]; then
+	Num=`echo $PARTIC | grep -Eo '[0-9][0-9][0-9]'`
+	OSIRIX=`find /Hermes/BLPTSD_scans -maxdepth 1 -iname "*$Num*" -print | sort | head -1 | sed 's/.*\///'`
+	cd /Hermes/BLPTSD_scans/"$OSIRIX"
+	target_dir=`ls /Hermes/BLPTSD_scans/"$OSIRIX"`
+	cp -a "$target_dir" /data/BLPTSD/RAW_data
+	mv /data/BLPTSD/RAW_data/"$target_dir" /data/BLPTSD/RAW_data/"$PARTIC"_2 
+fi
+
+#Check if participant directory exists. Create Participant's individual analysis directory from template "x"
+if [ ! -d /data/BLPTSD/indiv_analysis/"$PARTIC" ]; then
+	cd /data/BLPTSD/indiv_analysis/
+	cp -R ./x ./"$PARTIC"
+	cd ../
+	
+fi
+
+cd /data/BLPTSD
+
+##Create Run Log
+rm -f /data/BLPTSD/indiv_analysis/$PARTIC/runlog.txt
+touch /data/BLPTSD/indiv_analysis/$PARTIC/runlog.txt
+
+#Remove all spaces and hyphens with underscores in raw directory names
+#Base Check Phase
+echo -en '\n'
+echo -en '\n'
+echo "Baseline Check Phase"
+echo -en '\n'
+echo "You entered" $VISIT
+echo -en '\n'
+if [ $VISITNUM -eq 1 ]; then
+	echo "Baseline Check Passed!"
+	echo -en '\n'
+	echo -en '\n'
+	cd ./RAW_data/$PARTIC
+	for f in *\ *; do mv "$f" "${f// /_}"; done
+
+	cd /data/BLPTSD
+
+	#Repeat Anatomical?
+	NumbAnat=`find ./RAW_data/"$PARTIC" -iname 'T1_MPRAGE_1MM*' -print | wc -l`
+
+	#Anatomical
+	#find the anatomical directory
+	ANAT=`find ./RAW_data/"$PARTIC"/ -iname 'T1_MPRAGE_1MM*' -print | sort -r -V | tail -1 | sed 's/.*\///'`
+
+	echo -en '\n'
+	echo "Test event: Anatomical .nii file deletion immenent!"
+	echo -en '\n'
+
+	#Delete any pre-existing nifti files in directory
+	cd ./RAW_data/"$PARTIC"/"$ANAT"
+	find ./ -iname '*.nii' -exec rm -i {} \;
+	cd ../
+
+	#Convert dcm to nifti for a given participant and Anatomical task
+	find ./"$ANAT"/ -iname '*.dcm' -print | ../../../dcm2nii $(xargs);
+
+	#Select the converted nifti file and move it to the participant's individual analysis folder for the task
+	find ./"$ANAT"/ -not -iname "co*" -not -iname "o*" -iname '*.nii' -print | xargs cp -pt ../../indiv_analysis/"$PARTIC"/3danat_rest/$VISIT/
+
+	#Navigate to the nifiti file in the participant's BOLD directory for the task.
+	cd ../../indiv_analysis/"$PARTIC"/3danat_rest/$VISIT/
+
+	#Rename converted nifti file
+	find ./ -iname '*.nii' -print | mv $(xargs) "$PARTIC"_Anatomical.nii
+	
+	#Copy to other anatomical task folders
+	find ./ -iname '*.nii' -print | xargs cp -pt ../../3danat_anticipation/$VISIT/
+	find ./ -iname '*.nii' -print | xargs cp -pt ../../3danat_BMAT_fear/$VISIT/
+	find ./ -iname '*.nii' -print | xargs cp -pt ../../3danat_BMAT_happy/$VISIT/
+	find ./ -iname '*.nii' -print | xargs cp -pt ../../3danat_dot_probe/$VISIT/
+	find ./ -iname '*.nii' -print | xargs cp -pt ../../3danat_fear_conditioning/$VISIT/
+	find ./ -iname '*.nii' -print | xargs cp -pt ../../3danat_rest/$VISIT/
+
+	#Return to BLPTSD directory
+	cd /data/BLPTSD
+
+	#Repeat Anatomical
+	if [ $NumbAnat -eq "2" ]; then
+		#Find Repeat Anatomical
+		ANAT2=`find ./RAW_data/"$PARTIC"/ -iname 'T1_MPRAGE_1MM*' -print | sort -r | tail -1 | sed 's/.*\///'`
+		#Delete any pre-existing nifti files in directory
+		cd ./RAW_data/"$PARTIC"/"$ANAT2"
+		find ./ -iname '*.nii' -exec rm -i {} \;
+		cd ../
+
+		#Convert dcm to nifti for a given participant and Anatomical task
+		find ./"$ANAT2"/ -iname '*.dcm' -print | ../../../dcm2nii $(xargs);
+
+		#Select the converted nifti file and rename it
+		find ./"$ANAT2"/ -not -iname "co*" -not -iname "o*" -iname '*.nii' -print | mv $(xargs) ""$PARTIC"_Anatomical_Repeat.nii"
+
+		#Copy to anatomical task folders
+		find ./ -name ""$PARTIC"_Anatomical_Repeat.nii" -print | xargs cp -pt /data/BLPTSD/indiv_analysis/"$PARTIC"/3danat_anticipation/$VISIT/
+		find ./ -name ""$PARTIC"_Anatomical_Repeat.nii" -print | xargs cp -pt /data/BLPTSD/indiv_analysis/"$PARTIC"/3danat_BMAT_fear/$VISIT/
+		find ./ -name ""$PARTIC"_Anatomical_Repeat.nii" -print | xargs cp -pt /data/BLPTSD/indiv_analysis/"$PARTIC"/3danat_BMAT_happy/$VISIT/
+		find ./ -name ""$PARTIC"_Anatomical_Repeat.nii" -print | xargs cp -pt /data/BLPTSD/indiv_analysis/"$PARTIC"/3danat_dot_probe/$VISIT/
+		find ./ -name ""$PARTIC"_Anatomical_Repeat.nii" -print | xargs cp -pt /data/BLPTSD/indiv_analysis/"$PARTIC"/3danat_fear_conditioning/$VISIT/
+		find ./ -name ""$PARTIC"_Anatomical_Repeat.nii" -print | xargs cp -pt /data/BLPTSD/indiv_analysis/"$PARTIC"/3danat_rest/$VISIT/
+	else
+		echo "No Repeat Anatomical" >> /data/BLPTSD/indiv_analysis/$PARTIC/runlog.txt
+	fi
+
+	#Return to BLPTSD directory
+	cd /data/BLPTSD
+
+	
+	##BOLD Tasks
+	echo -en '\n'
+	echo "Begin BOLD Tasks"
+	echo -en '\n'
+
+	#Anticipation BOLD Baseline
+	unset TASK
+	TASK=`find ./RAW_data/"$PARTIC"/ -iname 'Anticipation_*' -print | sed 's/.*\///'`
+
+	#Determine whether $TASK exists
+	if [ -n "$TASK" ]; then
+	
+		#Delete any pre-existing nifti files in RAW data directory
+		cd ./RAW_data/"$PARTIC"/"$TASK"/
+		find ./ -iname '*.nii' -exec rm -i {} \;
+		cd ../../..
+
+		#Convert dcm to nifti for a given participant and BOLD task
+		find ./RAW_data/"$PARTIC"/"$TASK"/ -iname '*.dcm' -print | ../dcm2nii $(xargs)
+
+		#Navigate to raw data directory for the participant's task
+		cd ./RAW_data/"$PARTIC"/"$TASK"/
+
+		#Select the converted nifti file and move it to the participant's individual analysis folder for the task
+		find ./ -iname '*.nii' | xargs cp -t /data/BLPTSD/indiv_analysis/"$PARTIC"/bold/anticipation/$VISIT
+
+		#Navigate to the nifiti file in the participant's BOLD directory for the task.
+		cd /data/BLPTSD/indiv_analysis/"$PARTIC"/bold/anticipation/$VISIT
+
+		#Rename converted nifti file
+		find ./ -iname '*.nii' -print | mv $(xargs) anticipation_Bas_RAW_"$PARTIC".nii
+
+		#Return to BLPTSD
+		cd /data/BLPTSD
+		
+		#Echo statment
+		echo -en '\n'
+		echo -en '\n'
+		echo -en '\n'
+		echo -en '\n'
+		echo "Finished BOLD Anticipation Baseline"
+		echo -en '\n'
+		echo -en '\n'
+		echo -en '\n'
+		echo -en '\n'
+
+	#If $TASK DNE, write to log and print
+	else
+		echo "NO ANTICIPATION Baseline TASK RUN?!" >> /data/BLPTSD/indiv_analysis/$PARTIC/runlog.txt
+	
+	fi
+
+	unset TASK
+
+	#BMAT_Fear BOLD Baseline
+	TASK=`find ./RAW_data/"$PARTIC"/ -iname 'BMAT_Fear_*' -print | sed 's/.*\///'`
+
+	#Determine whether $TASK exists
+	if [ -n "$TASK" ]; then
+	
+		#Delete any pre-existing nifti files in RAW data directory
+		cd ./RAW_data/"$PARTIC"/"$TASK"/
+		find ./ -iname '*.nii' -exec rm -i {} \;
+		cd ../../..
+
+		#Convert dcm to nifti for a given participant and BOLD task
+		find ./RAW_data/"$PARTIC"/"$TASK"/ -iname '*.dcm' -print | ../dcm2nii $(xargs)
+
+		#Navigate to raw data directory for the participant's task
+		cd ./RAW_data/"$PARTIC"/"$TASK"/
+
+		#Select the converted nifti file and move it to the participant's individual analysis folder for the task
+		find ./ -iname '*.nii' | xargs cp -t /data/BLPTSD/indiv_analysis/$PARTIC/bold/BMAT_fear/$VISIT
+
+		#Navigate to the nifiti file in the participant's BOLD directory for the task.
+		cd /data/BLPTSD/indiv_analysis/"$PARTIC"/bold/BMAT_fear/$VISIT
+
+		#Rename converted nifti file
+		find ./ -iname '*.nii' -print | mv $(xargs) BMAT_fear_Bas_RAW_"$PARTIC".nii
+
+		#Return to BLPTSD
+		cd /data/BLPTSD
+		
+		#Echo statment
+		echo -en '\n'
+		echo -en '\n'
+		echo -en '\n'
+		echo -en '\n'
+		echo "Finished BOLD BMAT Fear Baseline"
+		echo -en '\n'
+		echo -en '\n'
+		echo -en '\n'
+		echo -en '\n'
+
+	#If $TASK DNE, write to log and print
+	else
+		echo "NO BMAT FEAR Baseline TASK RUN?!" >> /data/BLPTSD/indiv_analysis/$PARTIC/runlog.txt
+	
+	fi
+
+	unset TASK
+
+	#BMAT_Happy BOLD Baseline
+	TASK=`find ./RAW_data/"$PARTIC"/ -iname 'BMAT_Happy_*' -print | sed 's/.*\///'`
+
+	#Determine whether $TASK exists
+	if [ -n "$TASK" ]; then
+	
+		#Delete any pre-existing nifti files in RAW data directory
+		cd ./RAW_data/"$PARTIC"/"$TASK"/
+		find ./ -iname '*.nii' -exec rm -i {} \;
+		cd ../../..
+
+		#Convert dcm to nifti for a given participant and BOLD task
+		find ./RAW_data/"$PARTIC"/"$TASK"/ -iname '*.dcm' -print | ../dcm2nii $(xargs)
+
+		#Navigate to raw data directory for the participant's task
+		cd ./RAW_data/"$PARTIC"/"$TASK"/
+
+		#Select the converted nifti file and move it to the participant's individual analysis folder for the task
+		find ./ -iname '*.nii' | xargs cp -t /data/BLPTSD/indiv_analysis/$PARTIC/bold/BMAT_happy/$VISIT
+
+		#Navigate to the nifiti file in the participant's BOLD directory for the task.
+		cd /data/BLPTSD/indiv_analysis/"$PARTIC"/bold/BMAT_happy/$VISIT
+
+		#Rename converted nifti file
+		find ./ -iname '*.nii' -print | mv $(xargs) BMAT_happy_Bas_RAW_"$PARTIC".nii
+
+		#Return to BLPTSD
+		cd /data/BLPTSD
+		
+		#Echo statment
+		echo -en '\n'
+		echo -en '\n'
+		echo -en '\n'
+		echo -en '\n'
+		echo "Finished BOLD BMAT Happy Baseline"
+		echo -en '\n'
+		echo -en '\n'
+		echo -en '\n'
+		echo -en '\n'
+
+	#If $TASK DNE, write to log and print
+	else
+		echo "NO BMAT HAPPY Baseline TASK RUN?!" >> /data/BLPTSD/indiv_analysis/$PARTIC/runlog.txt
+	
+	fi
+
+	unset TASK
+
+	#Dot Probe BOLD Baseline
+	TASK=`find ./RAW_data/"$PARTIC"/ -iname 'Dot_Probe_*' -print | sed 's/.*\///'`
+
+	#Determine whether $TASK exists
+	if [ -n "$TASK" ]; then
+	
+		#Delete any pre-existing nifti files in RAW data directory
+		cd ./RAW_data/"$PARTIC"/"$TASK"/
+		find ./ -iname '*.nii' -exec rm -i {} \;
+		cd ../../..
+
+		#Convert dcm to nifti for a given participant and BOLD task
+		find ./RAW_data/"$PARTIC"/"$TASK"/ -iname '*.dcm' -print | ../dcm2nii $(xargs)
+
+		#Navigate to raw data directory for the participant's task
+		cd ./RAW_data/"$PARTIC"/"$TASK"/
+
+		#Select the converted nifti file and move it to the participant's individual analysis folder for the task
+		find ./ -iname '*.nii' | xargs cp -t /data/BLPTSD/indiv_analysis/$PARTIC/bold/dot_probe/$VISIT
+
+		#Navigate to the nifiti file in the participant's BOLD directory for the task.
+		cd /data/BLPTSD/indiv_analysis/"$PARTIC"/bold/dot_probe/$VISIT
+
+		#Rename converted nifti file
+		find ./ -iname '*.nii' -print | mv $(xargs) dot_probe_Bas_RAW_"$PARTIC".nii
+
+		#Return to BLPTSD
+		cd /data/BLPTSD
+		
+		#Echo statment
+		echo -en '\n'
+		echo -en '\n'
+		echo -en '\n'
+		echo -en '\n'
+		echo "Finished BOLD Dot Probe Baseline"
+		echo -en '\n'
+		echo -en '\n'
+		echo -en '\n'
+		echo -en '\n'
+
+	#If $TASK DNE, write to log and print
+	else
+		echo "NO DOT PROBE Baseline TASK RUN?!" >> /data/BLPTSD/indiv_analysis/$PARTIC/runlog.txt
+	
+	fi
+
+	unset TASK
+
+	#Fear Conditioning BOLD Baseline
+	TASK=`find ./RAW_data/"$PARTIC"/ -iname 'Fear_Conditioning_*' -print | sed 's/.*\///'`
+
+	#Determine whether $TASK exists
+	if [ -n "$TASK" ]; then
+
+		#Delete any pre-existing nifti files in RAW data directory
+		cd ./RAW_data/"$PARTIC"/"$TASK"/
+		find ./ -iname '*.nii' -exec rm -i {} \;
+		cd ../../..
+
+		#Convert dcm to nifti for a given participant and BOLD task
+		find ./RAW_data/"$PARTIC"/"$TASK"/ -iname '*.dcm' -print | ../dcm2nii $(xargs)
+
+		#Navigate to raw data directory for the participant's task
+		cd ./RAW_data/"$PARTIC"/"$TASK"/
+
+		#Select the converted nifti file and move it to the participant's individual analysis folder for the task
+		find ./ -iname '*.nii' | xargs cp -t /data/BLPTSD/indiv_analysis/$PARTIC/bold/fear_conditioning/$VISIT
+
+		#Navigate to the nifiti file in the participant's BOLD directory for the task.
+		cd /data/BLPTSD/indiv_analysis/"$PARTIC"/bold/fear_conditioning/$VISIT
+
+		#Rename converted nifti file
+		find ./ -iname '*.nii' -print | mv $(xargs) fear_conditioning_Bas_RAW_"$PARTIC".nii
+
+		#Return to BLPTSD
+		cd /data/BLPTSD
+
+		#Echo statment
+		echo -en '\n'
+		echo -en '\n'
+		echo -en '\n'
+		echo -en '\n'
+		echo "Finished BOLD Fear Conditioning Baseline"
+		echo -en '\n'
+		echo -en '\n'
+		echo -en '\n'
+		echo -en '\n'
+
+	#If $TASK DNE, write to log and print
+	else
+		echo "NO FEAR CONDITIONING Baseline TASK RUN?!" >> /data/BLPTSD/indiv_analysis/$PARTIC/runlog.txt
+	
+	fi
+
+	unset TASK
+	
+	#RestingState BOLD Baseline
+	TASK=`find ./RAW_data/"$PARTIC"/ -iname 'RestingState_*' -print | sed 's/.*\///'`
+
+	#Determine whether $TASK exists
+	if [ -n "$TASK" ]; then
+	
+		#Delete any pre-existing nifti files in RAW data directory
+		cd ./RAW_data/"$PARTIC"/"$TASK"/
+		find ./ -iname '*.nii' -exec rm -i {} \;
+		cd ../../..
+
+		#Convert dcm to nifti for a given participant and BOLD task
+		find ./RAW_data/"$PARTIC"/"$TASK"/ -iname '*.dcm' -print | ../dcm2nii $(xargs)
+
+		#Navigate to raw data directory for the participant's task
+		cd ./RAW_data/"$PARTIC"/"$TASK"/
+
+		#Select the converted nifti file and move it to the participant's individual analysis folder for the task
+		find ./ -iname '*.nii' | xargs cp -t /data/BLPTSD/indiv_analysis/"$PARTIC"/bold/rest/$VISIT
+
+		#Navigate to the nifiti file in the participant's BOLD directory for the task.
+		cd ../../../indiv_analysis/"$PARTIC"/bold/rest/$VISIT
+
+		#Rename converted nifti file
+		find ./ -iname '*.nii' -print | mv $(xargs) rest_Bas_RAW_"$PARTIC".nii
+
+		#Return to BLPTSD
+		cd /data/BLPTSD
+		
+		#Echo statment
+		echo "Finished BOLD RestingState Baseline"
+
+	#If $TASK DNE, write to log and print
+	else
+		echo "NO REST Baseline TASK RUN?!" >> /data/BLPTSD/indiv_analysis/$PARTIC/runlog.txt
+	
+	fi
+
+	unset TASK
+
+	#Fieldmapping Magnitude
+	TASK=`find ./RAW_data/"$PARTIC"/ -name 'field_mapping_*' -print | sort -r -V | tail -1 | sed 's/.*\///'`
+	
+	#Delete any pre-existing nifti files in RAW data directory
+	cd ./RAW_data/"$PARTIC"/"$TASK"/
+	find ./ -iname '*.nii' -exec rm -i {} \;
+	cd ../../..
+
+	#Convert dcm to nifti for a given participant and BOLD task
+	find ./RAW_data/"$PARTIC"/"$TASK"/ -iname '*.dcm' -print | ../dcm2nii $(xargs)
+
+	#Navigate to raw data directory for the participant's task
+	cd ./RAW_data/"$PARTIC"/"$TASK"/
+
+	#Rename converted nifti file
+	find ./ -iname '*.nii' -print | mv $(xargs) Magnitude_"$PARTIC".nii
+	
+	#copy converted nifti file to indiv_analysis
+	find ./ -name "Magnitude_"$PARTIC".nii" | xargs cp -t /data/BLPTSD/indiv_analysis/"$PARTIC"/fieldmaps/anticipation/Mag/$VISIT
+	find ./ -name "Magnitude_"$PARTIC".nii" | xargs cp -t /data/BLPTSD/indiv_analysis/"$PARTIC"/fieldmaps/BMAT_fear/Mag/$VISIT
+	find ./ -name "Magnitude_"$PARTIC".nii" | xargs cp -t /data/BLPTSD/indiv_analysis/"$PARTIC"/fieldmaps/BMAT_happy/Mag/$VISIT
+	find ./ -name "Magnitude_"$PARTIC".nii" | xargs cp -t /data/BLPTSD/indiv_analysis/"$PARTIC"/fieldmaps/dot_probe/Mag/$VISIT
+	find ./ -name "Magnitude_"$PARTIC".nii" | xargs cp -t /data/BLPTSD/indiv_analysis/"$PARTIC"/fieldmaps/fear_conditioning/Mag/$VISIT
+	find ./ -name "Magnitude_"$PARTIC".nii" | xargs cp -t /data/BLPTSD/indiv_analysis/"$PARTIC"/fieldmaps/rest/Mag/$VISIT
+
+	#Return to BLPTSD
+	cd /data/BLPTSD
+
+	#Fieldmapping Phase
+
+	TASK=`find ./RAW_data/"$PARTIC"/ -name 'field_mapping_*' -print | sort -V | tail -1 | sed 's/.*\///'`
+	
+	#Delete any pre-existing nifti files in RAW data directory
+	cd ./RAW_data/"$PARTIC"/"$TASK"/
+	find ./ -iname '*.nii' -exec rm -i {} \;
+	cd ../../..
+
+	#Convert dcm to nifti for a given participant and BOLD task
+	find ./RAW_data/"$PARTIC"/"$TASK"/ -iname '*.dcm' -print | ../dcm2nii $(xargs)
+
+	#Navigate to raw data directory for the participant's task
+	cd ./RAW_data/"$PARTIC"/"$TASK"/
+
+	#Rename converted nifti file
+	find ./ -iname '*.nii' -print | mv $(xargs) Phase_"$PARTIC".nii
+	
+	#copy converted nifti file to indiv_analysis
+	find ./ -name "Phase_"$PARTIC".nii" | xargs cp -t /data/BLPTSD/indiv_analysis/"$PARTIC"/fieldmaps/anticipation/Phase/$VISIT
+	find ./ -name "Phase_"$PARTIC".nii" | xargs cp -t /data/BLPTSD/indiv_analysis/"$PARTIC"/fieldmaps/BMAT_fear/Phase/$VISIT
+	find ./ -name "Phase_"$PARTIC".nii" | xargs cp -t /data/BLPTSD/indiv_analysis/"$PARTIC"/fieldmaps/BMAT_happy/Phase/$VISIT
+	find ./ -name "Phase_"$PARTIC".nii" | xargs cp -t /data/BLPTSD/indiv_analysis/"$PARTIC"/fieldmaps/dot_probe/Phase/$VISIT
+	find ./ -name "Phase_"$PARTIC".nii" | xargs cp -t /data/BLPTSD/indiv_analysis/"$PARTIC"/fieldmaps/fear_conditioning/Phase/$VISIT
+	find ./ -name "Phase_"$PARTIC".nii" | xargs cp -t /data/BLPTSD/indiv_analysis/"$PARTIC"/fieldmaps/rest/Phase/$VISIT
+
+cd /data/BLPTSD
+
+fi
+
+##Post
+
+#Post Check Phase
+echo -en '\n'
+echo -en '\n'
+echo "PostTX Check Phase"
+echo -en '\n'
+echo "You enterered" $VISIT
+echo -en '\n'
+
+if [ $VISITNUM -eq 2 ]; then
+	echo "PostTX Check Passed!"
+	echo -en '\n'
+	echo -en '\n'
+	cd ./RAW_data/"$PARTIC"_2
+	for f in *\ *; do mv "$f" "${f// /_}"; done
+
+	cd /data/BLPTSD
+
+	#Repeat Anatomical?
+	NumbAnat=`find ./RAW_data/""$PARTIC"_2" -iname 'T1_MPRAGE_1MM*' -print | wc -l`
+
+	#Anatomical
+	#find the anatomical directory
+	ANAT=`find ./RAW_data/""$PARTIC"_2"/ -iname 'T1_MPRAGE_1MM*' -print | sort -r -V | tail -1 | sed 's/.*\///'`
+
+	#Delete any pre-existing nifti files in directory
+	cd ./RAW_data/""$PARTIC"_2"/"$ANAT"
+	find ./ -iname '*.nii' -exec rm -i {} \;
+	cd ../
+
+	#Convert dcm to nifti for a given participant and Anatomical task
+	find ./"$ANAT"/ -iname '*.dcm' -print | ../../../dcm2nii $(xargs);
+
+	#Select the converted nifti file and move it to the participant's individual analysis folder for the task
+	find ./"$ANAT"/ -not -iname "co*" -not -iname "o*" -iname '*.nii' -print | xargs cp -pt ../../indiv_analysis/"$PARTIC"/3danat_rest/$VISIT/
+
+	#Navigate to the nifiti file in the participant's BOLD directory for the task.
+	cd ../../indiv_analysis/"$PARTIC"/3danat_rest/$VISIT/
+
+	#Rename converted nifti file
+	find ./ -iname '*.nii' -print | mv $(xargs) ""$PARTIC"_2"_Anatomical.nii
+	
+	#Copy to other anatomical task folders
+	find ./ -iname '*.nii' -print | xargs cp -pt ../../3danat_anticipation/$VISIT/
+	find ./ -iname '*.nii' -print | xargs cp -pt ../../3danat_BMAT_fear/$VISIT/
+	find ./ -iname '*.nii' -print | xargs cp -pt ../../3danat_BMAT_happy/$VISIT/
+	find ./ -iname '*.nii' -print | xargs cp -pt ../../3danat_dot_probe/$VISIT/
+	find ./ -iname '*.nii' -print | xargs cp -pt ../../3danat_fear_conditioning/$VISIT/
+
+	#Return to BLPTSD directory
+	cd /data/BLPTSD
+
+	#Repeat Anatomical
+	if [ $NumbAnat -eq "2" ]; then
+		#Find Repeat Anatomical
+		ANAT2=`find ./RAW_data/""$PARTIC"_2"/ -iname 'T1_MPRAGE_1MM*' -print | sort -r | tail -1 | sed 's/.*\///'`
+		#Delete any pre-existing nifti files in directory
+		cd ./RAW_data/""$PARTIC"_2"/"$ANAT2"
+		find ./ -iname '*.nii' -exec rm -i {} \;
+		cd ../
+
+		#Convert dcm to nifti for a given participant and Anatomical task
+		find ./"$ANAT2"/ -iname '*.dcm' -print | ../../../dcm2nii $(xargs);
+
+		#Select the converted nifti file and rename it
+		find ./"$ANAT2"/ -not -iname "co*" -not -iname "o*" -iname '*.nii' -print | mv $(xargs) """$PARTIC"_2"_Anatomical_Repeat.nii"
+
+		#Copy to anatomical task folders
+		find ./ -name """$PARTIC"_2"_Anatomical_Repeat.nii" -print | xargs cp -pt /data/BLPTSD/indiv_analysis/"$PARTIC"/3danat_rest/$VISIT/
+		find ./ -name """$PARTIC"_2"_Anatomical_Repeat.nii" -print | xargs cp -pt /data/BLPTSD/indiv_analysis/"$PARTIC"/3danat_anticipation/$VISIT/
+		find ./ -name """$PARTIC"_2"_Anatomical_Repeat.nii" -print | xargs cp -pt /data/BLPTSD/indiv_analysis/"$PARTIC"/3danat_BMAT_fear/$VISIT/
+		find ./ -name """$PARTIC"_2"_Anatomical_Repeat.nii" -print | xargs cp -pt /data/BLPTSD/indiv_analysis/"$PARTIC"/3danat_BMAT_happy/$VISIT/
+		find ./ -name """$PARTIC"_2"_Anatomical_Repeat.nii" -print | xargs cp -pt /data/BLPTSD/indiv_analysis/"$PARTIC"/3danat_dot_probe/$VISIT/
+		find ./ -name """$PARTIC"_2"_Anatomical_Repeat.nii" -print | xargs cp -pt /data/BLPTSD/indiv_analysis/"$PARTIC"/3danat_fear_conditioning/$VISIT/
+	else
+		echo "No Repeat Anatomical"
+	fi
+
+#BOLD Tasks
+	#Anticipation BOLD PostTX
+	TASK=`find ./RAW_data/""$PARTIC"_2"/ -iname 'Anticipation_*' -print | sort -r | tail -1 | sed 's/.*\///'`
+
+	#Determine whether $TASK exists
+	if [ -n "$TASK" ]; then
+	
+		#Delete any pre-existing nifti files in RAW data directory
+		cd ./RAW_data/""$PARTIC"_2"/"$TASK"/
+		find ./ -iname '*.nii' -exec rm -i {} \;
+		cd ../../..
+
+		#Convert dcm to nifti for a given participant and BOLD task
+		find ./RAW_data/""$PARTIC"_2"/"$TASK"/ -iname '*.dcm' -print | ../dcm2nii $(xargs)
+
+		#Navigate to raw data directory for the participant's task
+		cd ./RAW_data/""$PARTIC"_2"/"$TASK"/
+
+		#Select the converted nifti file and move it to the participant's individual analysis folder for the task
+		find ./ -iname '*.nii' | xargs cp -t /data/BLPTSD/indiv_analysis/"$PARTIC"/bold/anticipation/$VISIT
+
+		#Navigate to the nifiti file in the participant's BOLD directory for the task.
+		cd /data/BLPTSD/indiv_analysis/"$PARTIC"/bold/anticipation/$VISIT
+
+		#Rename converted nifti file
+		find ./ -iname '*.nii' -print | mv $(xargs) anticipation_Bas_RAW_""$PARTIC"_2".nii
+
+		#Return to BLPTSD
+		cd /data/BLPTSD
+		
+		#Echo statment
+		echo -en '\n'
+		echo -en '\n'
+		echo -en '\n'
+		echo -en '\n'
+		echo "Finished BOLD Anticipation PostTX"
+		echo -en '\n'
+		echo -en '\n'
+		echo -en '\n'
+		echo -en '\n'
+
+	#If $TASK DNE, write to log and print
+	else
+		echo "NO PostTX ANTICIPATION TASK RUN?!" >> /data/BLPTSD/indiv_analysis/$PARTIC/runlog.txt
+	
+	fi
+
+	unset TASK
+
+	#BMAT_Fear BOLD PostTX
+	TASK=`find ./RAW_data/""$PARTIC"_2"/ -iname 'BMAT_Fear_*' -print | sort -r | tail -1 | sed 's/.*\///'`
+
+	#Determine whether $TASK exists
+	if [ -n "$TASK" ]; then
+	
+		#Delete any pre-existing nifti files in RAW data directory
+		cd ./RAW_data/""$PARTIC"_2"/"$TASK"/
+		find ./ -iname '*.nii' -exec rm -i {} \;
+		cd ../../..
+
+		#Convert dcm to nifti for a given participant and BOLD task
+		find ./RAW_data/""$PARTIC"_2"/"$TASK"/ -iname '*.dcm' -print | ../dcm2nii $(xargs)
+
+		#Navigate to raw data directory for the participant's task
+		cd ./RAW_data/""$PARTIC"_2"/"$TASK"/
+
+		#Select the converted nifti file and move it to the participant's individual analysis folder for the task
+		find ./ -iname '*.nii' | xargs cp -t /data/BLPTSD/indiv_analysis/"$PARTIC"/bold/BMAT_fear/$VISIT
+
+		#Navigate to the nifiti file in the participant's BOLD directory for the task.
+		cd /data/BLPTSD/indiv_analysis/"$PARTIC"/bold/BMAT_fear/$VISIT
+
+		#Rename converted nifti file
+		find ./ -iname '*.nii' -print | mv $(xargs) BMAT_fear_Bas_RAW_""$PARTIC"_2".nii
+
+		#Return to BLPTSD
+		cd /data/BLPTSD
+		
+		#Echo statment
+		echo -en '\n'
+		echo -en '\n'
+		echo -en '\n'
+		echo -en '\n'
+		echo "Finished BOLD BMAT Fear PostTX"
+		echo -en '\n'
+		echo -en '\n'
+		echo -en '\n'
+		echo -en '\n'
+
+	#If $TASK DNE, write to log and print
+	else
+		echo "NO PostTX BMAT FEAR TASK RUN?!" >> /data/BLPTSD/indiv_analysis/$PARTIC/runlog.txt
+	
+	fi
+
+	unset TASK
+
+	#BMAT_Happy BOLD PostTX
+	TASK=`find ./RAW_data/""$PARTIC"_2"/ -iname 'BMAT_Happy_*' -print | sort -r | tail -1 | sed 's/.*\///'`
+
+	#Determine whether $TASK exists
+	if [ -n "$TASK" ]; then
+	
+		#Delete any pre-existing nifti files in RAW data directory
+		cd ./RAW_data/""$PARTIC"_2"/"$TASK"/
+		find ./ -iname '*.nii' -exec rm -i {} \;
+		cd ../../..
+
+		#Convert dcm to nifti for a given participant and BOLD task
+		find ./RAW_data/""$PARTIC"_2"/"$TASK"/ -iname '*.dcm' -print | ../dcm2nii $(xargs)
+
+		#Navigate to raw data directory for the participant's task
+		cd ./RAW_data/""$PARTIC"_2"/"$TASK"/
+
+		#Select the converted nifti file and move it to the participant's individual analysis folder for the task
+		find ./ -iname '*.nii' | xargs cp -t /data/BLPTSD/indiv_analysis/"$PARTIC"/bold/BMAT_happy/$VISIT
+
+		#Navigate to the nifiti file in the participant's BOLD directory for the task.
+		cd /data/BLPTSD/indiv_analysis/"$PARTIC"/bold/BMAT_happy/$VISIT
+
+		#Rename converted nifti file
+		find ./ -iname '*.nii' -print | mv $(xargs) BMAT_happy_Bas_RAW_""$PARTIC"_2".nii
+
+		#Return to BLPTSD
+		cd /data/BLPTSD
+		
+		#Echo statment
+		echo -en '\n'
+		echo -en '\n'
+		echo -en '\n'
+		echo -en '\n'
+		echo "Finished BOLD BMAT Happy PostTX"
+		echo -en '\n'
+		echo -en '\n'
+		echo -en '\n'
+		echo -en '\n'
+
+	#If $TASK DNE, write to log and print
+	else
+		echo "NO PostTX BMAT HAPPY TASK RUN?!" >> /data/BLPTSD/indiv_analysis/$PARTIC/runlog.txt
+	
+	fi
+
+	unset TASK
+
+	#Dot Probe BOLD PostTX
+	TASK=`find ./RAW_data/""$PARTIC"_2"/ -iname 'Dot_Probe_*' -print | sort -r | tail -1 | sed 's/.*\///'`
+
+	#Determine whether $TASK exists
+	if [ -n "$TASK" ]; then
+	
+		#Delete any pre-existing nifti files in RAW data directory
+		cd ./RAW_data/""$PARTIC"_2"/"$TASK"/
+		find ./ -iname '*.nii' -exec rm -i {} \;
+		cd ../../..
+
+		#Convert dcm to nifti for a given participant and BOLD task
+		find ./RAW_data/""$PARTIC"_2"/"$TASK"/ -iname '*.dcm' -print | ../dcm2nii $(xargs)
+
+		#Navigate to raw data directory for the participant's task
+		cd ./RAW_data/""$PARTIC"_2"/"$TASK"/
+
+		#Select the converted nifti file and move it to the participant's individual analysis folder for the task
+		find ./ -iname '*.nii' | xargs cp -t /data/BLPTSD/indiv_analysis/"$PARTIC"/bold/dot_probe/$VISIT
+
+		#Navigate to the nifiti file in the participant's BOLD directory for the task.
+		cd /data/BLPTSD/indiv_analysis/"$PARTIC"/bold/dot_probe/$VISIT
+
+		#Rename converted nifti file
+		find ./ -iname '*.nii' -print | mv $(xargs) dot_probe_Bas_RAW_""$PARTIC"_2".nii
+
+		#Return to BLPTSD
+		cd /data/BLPTSD
+		
+		#Echo statment
+		echo -en '\n'
+		echo -en '\n'
+		echo -en '\n'
+		echo -en '\n'
+		echo "Finished BOLD Dot Probe PostTX"
+		echo -en '\n'
+		echo -en '\n'
+		echo -en '\n'
+		echo -en '\n'
+
+	#If $TASK DNE, write to log and print
+	else
+		echo "NO PostTX DOT PROBE TASK RUN?!" >> /data/BLPTSD/indiv_analysis/$PARTIC/runlog.txt
+	
+	fi
+
+	unset TASK
+
+	#Fear Conditioning BOLD PostTX
+	TASK=`find ./RAW_data/""$PARTIC"_2"/ -iname 'Fear_Conditioning_*' -print | sort -r | tail -1 | sed 's/.*\///'`
+
+	#Determine whether $TASK exists
+	if [ -n "$TASK" ]; then
+	
+		#Delete any pre-existing nifti files in RAW data directory
+		cd ./RAW_data/""$PARTIC"_2"/"$TASK"/
+		find ./ -iname '*.nii' -exec rm -i {} \;
+		cd ../../..
+
+		#Convert dcm to nifti for a given participant and BOLD task
+		find ./RAW_data/""$PARTIC"_2"/"$TASK"/ -iname '*.dcm' -print | ../dcm2nii $(xargs)
+
+		#Navigate to raw data directory for the participant's task
+		cd ./RAW_data/""$PARTIC"_2"/"$TASK"/
+
+		#Select the converted nifti file and move it to the participant's individual analysis folder for the task
+		find ./ -iname '*.nii' | xargs cp -t /data/BLPTSD/indiv_analysis/"$PARTIC"/bold/fear_conditioning/$VISIT
+
+		#Navigate to the nifiti file in the participant's BOLD directory for the task.
+		cd /data/BLPTSD/indiv_analysis/"$PARTIC"/bold/fear_conditioning/$VISIT
+
+		#Rename converted nifti file
+		find ./ -iname '*.nii' -print | mv $(xargs) fear_conditioning_Bas_RAW_""$PARTIC"_2".nii
+
+		#Return to BLPTSD
+		cd /data/BLPTSD
+		
+		#Echo statment
+		echo -en '\n'
+		echo -en '\n'
+		echo -en '\n'
+		echo -en '\n'
+		echo "Finished BOLD Fear Conditioning PostTX"
+		echo -en '\n'
+		echo -en '\n'
+		echo -en '\n'
+		echo -en '\n'
+
+	#If $TASK DNE, write to log and print
+	else
+		echo "NO PostTX FEAR CONDITIONING TASK RUN?!" >> /data/BLPTSD/indiv_analysis/$PARTIC/runlog.txt
+	
+	fi
+
+	unset TASK
+
+	#rest BOLD PostTX
+	TASK=`find ./RAW_data/""$PARTIC"_2"/ -iname 'RestingState_*' -print | sort -r | tail -1 | sed 's/.*\///'`
+
+	#Determine whether $TASK exists
+	if [ -n "$TASK" ]; then
+	
+		#Delete any pre-existing nifti files in RAW data directory
+		cd ./RAW_data/""$PARTIC"_2"/"$TASK"/
+		find ./ -iname '*.nii' -exec rm -i {} \;
+		cd ../../..
+
+		#Convert dcm to nifti for a given participant and BOLD task
+		find ./RAW_data/""$PARTIC"_2"/"$TASK"/ -iname '*.dcm' -print | ../dcm2nii $(xargs)
+
+		#Navigate to raw data directory for the participant's task
+		cd ./RAW_data/""$PARTIC"_2"/"$TASK"/
+
+		#Select the converted nifti file and move it to the participant's individual analysis folder for the task
+		find ./ -iname '*.nii' | xargs cp -t /data/BLPTSD/indiv_analysis/"$PARTIC"/bold/rest/$VISIT
+
+		#Navigate to the nifiti file in the participant's BOLD directory for the task.
+		cd ../../../indiv_analysis/"$PARTIC"/bold/rest/$VISIT
+
+		#Rename converted nifti file
+		find ./ -iname '*.nii' -print | mv $(xargs) rest_Bas_RAW_""$PARTIC"_2".nii
+
+		#Return to BLPTSD
+		cd /data/BLPTSD
+		
+		#Echo statment
+		echo -en '\n'
+		echo -en '\n'
+		echo -en '\n'
+		echo -en '\n'
+		echo "Finished BOLD RestingState PostTX"
+		echo -en '\n'
+		echo -en '\n'
+		echo -en '\n'
+		echo -en '\n'
+
+	#If $TASK DNE, write to log and print
+	else
+		echo "NO PostTX REST TASK RUN?!" >> /data/BLPTSD/indiv_analysis/$PARTIC/runlog.txt
+	
+	fi
+
+	unset TASK
+
+	#Fieldmapping Magnitude
+	TASK=`find ./RAW_data/""$PARTIC"_2"/ -name 'field_mapping_*' -print | sort -r -V | tail -1 | sed 's/.*\///'`
+	
+	#Delete any pre-existing nifti files in RAW data directory
+	cd ./RAW_data/""$PARTIC"_2"/"$TASK"/
+	find ./ -iname '*.nii' -exec rm -i {} \;
+	cd ../../..
+
+	#Convert dcm to nifti for a given participant and BOLD task
+	find ./RAW_data/""$PARTIC"_2"/"$TASK"/ -iname '*.dcm' -print | ../dcm2nii $(xargs)
+
+	#Navigate to raw data directory for the participant's task
+	cd ./RAW_data/""$PARTIC"_2"/"$TASK"/
+
+	#Rename converted nifti file
+	find ./ -iname '*.nii' -print | mv $(xargs) Magnitude_""$PARTIC"_2".nii
+	
+	#copy converted nifti file to indiv_analysis
+	find ./ -name "Magnitude_""$PARTIC"_2".nii" | xargs cp -t /data/BLPTSD/indiv_analysis/"$PARTIC"/fieldmaps/anticipation/Mag/$VISIT
+	find ./ -name "Magnitude_""$PARTIC"_2".nii" | xargs cp -t /data/BLPTSD/indiv_analysis/"$PARTIC"/fieldmaps/BMAT_fear/Mag/$VISIT
+	find ./ -name "Magnitude_""$PARTIC"_2".nii" | xargs cp -t /data/BLPTSD/indiv_analysis/"$PARTIC"/fieldmaps/BMAT_happy/Mag/$VISIT
+	find ./ -name "Magnitude_""$PARTIC"_2".nii" | xargs cp -t /data/BLPTSD/indiv_analysis/"$PARTIC"/fieldmaps/dot_probe/Mag/$VISIT
+	find ./ -name "Magnitude_""$PARTIC"_2".nii" | xargs cp -t /data/BLPTSD/indiv_analysis/"$PARTIC"/fieldmaps/fear_conditioning/Mag/$VISIT
+	find ./ -name "Magnitude_""$PARTIC"_2".nii" | xargs cp -t /data/BLPTSD/indiv_analysis/"$PARTIC"/fieldmaps/rest/Mag/$VISIT
+
+	#Return to BLPTSD
+	cd /data/BLPTSD
+
+	#Fieldmapping Phase
+
+	TASK=`find ./RAW_data/""$PARTIC"_2"/ -name 'field_mapping*' -print | sort -V | tail -1 | sed 's/.*\///'`
+	
+	#Delete any pre-existing nifti files in RAW data directory
+	cd ./RAW_data/""$PARTIC"_2"/"$TASK"/
+	find ./ -iname '*.nii' -exec rm -i {} \;
+	cd ../../..
+
+	#Convert dcm to nifti for a given participant and BOLD task
+	find ./RAW_data/""$PARTIC"_2"/"$TASK"/ -iname '*.dcm' -print | ../dcm2nii $(xargs)
+
+	#Navigate to raw data directory for the participant's task
+	cd ./RAW_data/""$PARTIC"_2"/"$TASK"/
+
+	#Rename converted nifti file
+	find ./ -iname '*.nii' -print | mv $(xargs) Phase_""$PARTIC"_2".nii
+	
+	#copy converted nifti file to indiv_analysis
+	find ./ -name "Phase_""$PARTIC"_2".nii" | xargs cp -t /data/BLPTSD/indiv_analysis/"$PARTIC"/fieldmaps/anticipation/Phase/$VISIT
+	find ./ -name "Phase_""$PARTIC"_2".nii" | xargs cp -t /data/BLPTSD/indiv_analysis/"$PARTIC"/fieldmaps/BMAT_fear/Phase/$VISIT
+	find ./ -name "Phase_""$PARTIC"_2".nii" | xargs cp -t /data/BLPTSD/indiv_analysis/"$PARTIC"/fieldmaps/BMAT_happy/Phase/$VISIT
+	find ./ -name "Phase_""$PARTIC"_2".nii" | xargs cp -t /data/BLPTSD/indiv_analysis/"$PARTIC"/fieldmaps/dot_probe/Phase/$VISIT
+	find ./ -name "Phase_""$PARTIC"_2".nii" | xargs cp -t /data/BLPTSD/indiv_analysis/"$PARTIC"/fieldmaps/fear_conditioning/Phase/$VISIT
+	find ./ -name "Phase_""$PARTIC"_2".nii" | xargs cp -t /data/BLPTSD/indiv_analysis/"$PARTIC"/fieldmaps/rest/Phase/$VISIT
+fi
+
+#SUMMARY
+echo -en '\n'
+echo -en '\n'
+echo -en '\n'
+echo -en '\n'
+echo -en '\n'
+echo -en '\n'
+if [ /data/BLPTSD/indiv_analysis/$PARTIC/runlog.txt="" ]; then
+	echo "Nothing broke (or nothing is missing) after attempting to process!"
+	echo "Please check just in case."
+else
+	echo "Here is a list of malfunctioning processes."
+	echo "Please make sure their preliminary paths exist."
+	cat /data/BLPTSD/indiv_analysis/$PARTIC/runlog.txt
+fi
+echo -en '\n'
+echo -en '\n'
+echo -en '\n'
+echo -en '\n'
+echo -en '\n'
+echo -en '\n'

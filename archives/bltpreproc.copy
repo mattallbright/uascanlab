@@ -1,0 +1,77 @@
+#!/bin/bash
+
+cd /
+
+#Choose Participant
+echo -en '\n'
+ls ./data2/blt/RAW_data
+echo -en '\n'
+echo "Which participant?"; read PARTIC
+
+DTIRAW=`find ./data2/blt/RAW_data/$PARTIC/'Mclean Research Killgore' -iname "dti-mgh-72-8-gr2 - 13" -not -iname "*ADC*" -not -iname "*COLFA*" -not -iname "*FA*" -not -iname "*TENSOR*" -not -iname "*TRACEW*" -print | sed 's/.*\///'`
+
+#Delete any pre-existing nifti files in raw directory
+	cd ./data2/blt/RAW_data/$PARTIC/'Mclean Research Killgore'/"$DTIRAW"
+	find ./ -iname '*.nii.gz' -exec rm -i {} \;
+	find ./ -iname '*.bvec' -exec rm -i {} \;
+	find ./ -iname '*.bval' -exec rm -i {} \;
+	cd /
+
+#Delete any pre-existing nifti files in analysis directory
+	cd ./data2/blt/dti_72_preproc
+	if [ -d ./"$PARTIC" ]; then	
+		cd ./$PARTIC
+		find ./ -iname '*.nii.gz' -exec rm -i {} \;
+		find ./ -iname '*.bvec' -exec rm -i {} \;
+		find ./ -iname '*.bval' -exec rm -i {} \;
+	fi
+	cd /
+
+#Create a dti analysis directory for participant
+	cd ./data2/blt/dti_72_preproc
+	if [ ! -d ./"$PARTIC" ]; then
+		mkdir ./"$PARTIC"
+	fi
+	cd
+	cd /
+
+#Convert dcm to nifti for a given participant
+	cd ./data2/blt/
+
+	find ./RAW_data/$PARTIC/'Mclean Research Killgore'/"$DTIRAW" -iname '*.dcm' -print | ../dcm2nii -g y $(xargs)
+
+	#Navigate to raw data directory for the participant
+	cd ./RAW_data/$PARTIC/'Mclean Research Killgore'/"$DTIRAW"
+
+	#Rename converted nifti file to "Data1"
+	find ./ -iname '*.nii.gz' -print | mv $(xargs) 'Data1.nii.gz'
+
+	#Rename bvecs file to "Data1_bvec"
+	find ./ -iname '*.bvec' -print | mv $(xargs) 'Data1.bvec'
+
+	#Rename bval file to "Data1_bval"
+	find ./ -iname '*.bval' -print | mv $(xargs) 'Data1.bval'
+
+	#Select the converted nifti file and move it to the participant's individual analysis folder for the task
+	cp ./Data1.nii.gz ../../../dti_72_preproc/$PARTIC/
+	cp ./Data1.bvec ../../../dti_72_preproc/$PARTIC/
+	cp ./Data1.bval ../../../dti_72_preproc/$PARTIC/
+	
+	#Navigate to participant's directory
+	cd ../../../dti_72_preproc/$PARTIC
+	
+#Check converted image in fslview while eddy correcting
+	fslview Data1.nii.gz &
+
+#Eddy correct
+	eddy_correct Data1.nii.gz Data1_eddy 0
+
+#Rotate bvecs
+	fdt_rotate_bvecs Data1.bvec Data1_rotated_bvec.bvec Data1_eddy.ecclog
+
+#Brain extraction
+	bet2 Data1_eddy Data1.bet -m -f 0.3
+
+#DTIFIT
+	dtifit -k Data1_eddy -o Data1 -m Data1.bet_mask -r Data1_rotated_bvec.bvec -b Data1.bval
+

@@ -1,0 +1,15 @@
+#!/bin/bash
+
+#extract b0 volume
+fslroi Data1.nii.gz Datab0.nii.gz 0 1
+
+#extract brain mask from b0 volume
+bet2 Datab0.nii.gz Datab0.bet -m -f 0.3
+
+#create index based on number of volumes
+indx=""
+for ((i=1; i<=80; i+=1)); do indx="indx 1"; done
+echo $indx > index.txt
+
+#run eddy
+eddy --imain=Data1.nii.gz --mask=Datab0.bet_mask.nii.gz --acqp=../acqparams.txt --index=index.txt --bvecs=Data1.bvec --bvals=Data1.bval --out=Data1_eddy.nii.gz

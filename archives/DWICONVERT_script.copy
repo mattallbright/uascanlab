@@ -1,0 +1,16 @@
+#!/bin/bash
+
+cd /
+cd ./data/emot
+
+#Choose Participant
+echo -en '\n'
+ls ./dti_72_preproc
+echo -en '\n'
+echo "Which participant?"; read PARTIC
+
+cd /
+
+cd ./usr/local/DTIPrepPackage/
+
+./DWIConvert --inputVolume /data/emot/dti_72_preproc/"$PARTIC"/Data1.nii.gz --conversionMode FSLToNrrd --inputBValues /data/emot/dti_72_preproc/"$PARTIC"/Data1.bval --inputBVectors /data/emot/dti_72_preproc/"$PARTIC"/Data1.bvec --outputVolume /data/emot/dti_quality_control/"$PARTIC".nrrd

@@ -1,0 +1,14 @@
+#!/bin/bash
+filename='/home/scanlab/blt_list.txt'
+filelines=`cat $filename`
+
+for PARTIC in $filelines;	
+do
+	cp -a /data2/blt/FreeSurferSegmentation/"$PARTIC"base /data2/blt/TRACULA/diffusion_recons
+	mv /data2/blt/TRACULA/diffusion_recons/"$PARTIC"base /data2/blt/TRACULA/diffusion_recons/"$PARTIC"_1
+	cp -a /data2/blt/FreeSurferSegmentation/"$PARTIC"base /data2/blt/TRACULA/diffusion_recons
+	mv /data2/blt/TRACULA/diffusion_recons/"$PARTIC"base /data2/blt/TRACULA/diffusion_recons/"$PARTIC"_2
+	echo "Done $PARTIC"
+done
+
+

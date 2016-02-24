@@ -1,0 +1,82 @@
+#!/bin/bash
+
+cd /
+
+#Choose Participant
+echo -en '\n'
+ls /data/BLHC/RAW_data
+echo -en '\n'
+echo "Which participant?"; read PARTIC
+
+DTIRAW=`find ./data/BLHC/RAW_data/$PARTIC/ -iname "DTI_72_DIRS_A-P_*" -not -iname "*ADC*" -not -iname "*COLFA*" -not -iname "*FA*" -not -iname "*TENSOR*" -not -iname "*TRACEW*" -print | sed 's/.*\///'`
+
+	if [[ -z "$DTIRAW" ]]; then
+		echo "Raw Data Not Found! Check Hermes Folder."
+		exit
+	fi
+
+	#Remove all spaces and hyphens with underscores in raw directory names
+	cd /data/BLHC/RAW_data/$PARTIC
+	for f in *\ *; do mv "$f" "${f// /_}"; done
+
+#Create a dti analysis directory for participant
+	cd /data/BLHC/dti_denoised_FINAL
+	if [ ! -d ./"$PARTIC" ]; then
+		mkdir ./"$PARTIC"
+	fi
+	cd
+	cd /
+
+#Delete any pre-existing nifti files in analysis directory
+	cd /data/BLHC/dti_denoised_FINAL
+	if [ -d ./"$PARTIC" ]; then	
+		cd ./$PARTIC
+		find ./ -iname '*.nii.gz' -exec rm -i {} \;
+		find ./ -iname '*.bvec' -exec rm -i {} \;
+		find ./ -iname '*.bval' -exec rm -i {} \;
+	fi
+	cd /
+
+#Convert dcm to nifti for a given participant
+	cd /data/BLHC/
+
+	find ./RAW_data/$PARTIC/$DTIRAW -iname '*.dcm' -print | ../dcm2nii -g y $(xargs)
+
+	#Navigate to raw data directory for the participant
+	cd ./RAW_data/$PARTIC/$DTIRAW
+
+	#Rename converted nifti file to "Data1"
+	find ./ -iname '*.nii.gz' -print | mv $(xargs) 'Data1.nii.gz'
+
+	#Rename bvecs file to "Data1_bvec"
+	find ./ -iname '*.bvec' -print | mv $(xargs) 'Data1.bvec'
+
+	#Rename bval file to "Data1_bval"
+	find ./ -iname '*.bval' -print | mv $(xargs) 'Data1.bval'
+
+	#Select the converted nifti file and move it to the participant's individual analysis folder for the task
+	cp ./Data1.nii.gz ../../../dti_denoised_FINAL/$PARTIC/
+	cp ./Data1.bvec ../../../dti_denoised_FINAL/$PARTIC/
+	cp ./Data1.bval ../../../dti_denoised_FINAL/$PARTIC/
+	
+	#Navigate to participant's directory
+	cd ../../../dti_denoised_FINAL/$PARTIC
+
+#Eddy correct
+	eddy_correct Data1.nii.gz Data1_eddy 0
+
+#Rotate bvecs
+	fdt_rotate_bvecs Data1.bvec Data1_rotated_bvec.bvec Data1_eddy.ecclog
+
+	dcm2nii -g n -m n Data1_eddy.nii.gz
+
+	matlab -nodesktop -nosplash -r "addpath(genpath('/usr/local/LPCA Denoising Software')); addpath(genpath('/usr/local/nifti_analyzer')); Run_LPCA('fData1_eddy.nii','Data1.bval'); clear; quit;"
+
+	dcm2nii -g y -m n fData1_eddy_denoised.nii
+
+	mv ffData1_eddy_denoised.nii.gz eddy_corrected_data_denoised.nii.gz
+
+	bet eddy_corrected_data_denoised.nii.gz bet.nii.gz -m -f 0.3
+	
+	#DTIFIT
+	dtifit -k eddy_corrected_data_denoised.nii.gz -o "$PARTIC" -m bet_mask.nii.gz -r Data1_rotated_bvec.bvec -b Data1.bval

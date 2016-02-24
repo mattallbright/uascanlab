@@ -1,0 +1,18 @@
+fslroi blip_up b0_blip_up 0 1
+fslroi blip_down b0_blip_down 0 1
+fslmerge -t both_b0 b0_blip_up b0_blip_down
+
+printf "0 -1 0 0.12\n0 1 0 0.12" > acqparams.txt 
+
+topup --imain=both_b0 --datain=acqparams.txt --config=$FSLDIR/etc/flirtsch/b02b0.cnf --out=my_topup_results --iout=my_hifi_b0
+
+fslmaths my_hifi_b0 -Tmean my_hifi_b0
+bet my_hifi_b0 my_hifi_b0_brain -m
+
+indx=""
+for ((i=1; i<=74; i+=1)); do indx="$indx 1"; done
+echo $indx > index1.txt
+
+eddy --imain=blip_up --mask=my_hifi_b0_brain_mask --acqp=acqparams.txt --index=index1.txt --bvecs=Data1.bvec --bvals=Data1.bval --topup=my_topup_results --out=eddy_corrected_data
+
+
