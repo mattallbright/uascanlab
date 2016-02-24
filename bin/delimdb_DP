@@ -1,0 +1,104 @@
+#!/bin/bash
+#delimdb
+#Created by Matt Allbright
+#Takes delimited text files and formats them into an easy to use delimited file
+
+#Navigate to directory
+#Currently, this is just TRACULA
+cd /mnt/data1/TBIMODEL/TRACULA/tractography_output/
+
+Study=/data/TBIMODEL
+tracdir=TRACULA
+
+#Remove previous database file
+if [ ! -f $Study/$tracdir/tractography_output/database ]; then
+	touch $Study/$tracdir/tractography_output/database
+	echo "Creating new database file."
+	echo -e "Partic\tAD.fmajor\tFA.fmajor\tMD.fmajor\tRD.fmajor\tAD.fminor\tFA.fminor\tMD.fminor\tRD.fminor\tGlobal_FA\tAD.lh.atr\tFA.lh.atr\tMD.lh.atr\tRD.lh.atr\tAD.lh.cab\tFA.lh.cab\tMD.lh.cab\tRD.lh.cab\tAD.lh.ccg\tFA.lh.ccg\tMD.lh.ccg\tRD.lh.ccg\tAD.lh.cst\tFA.lh.cst\tMD.lh.cst\tRD.lh.cst\tAD.lh.ilf\tFA.lh.ilf\tMD.lh.ilf\tRD.lh.ilf\tAD.lh.slfp\tFA.lh.slfp\tMD.lh.slfp\tRD.lh.slfp\tAD.lh.slft\tFA.lh.slft\tMD.lh.slft\tRD.lh.slft\tAD.lh.unc\tFA.lh.unc\tMD.lh.unc\tRD.lh.unc\tAD.rh.atr\tFA.rh.atr\tMD.rh.atr\tRD.rh.atr\tAD.rh.cab\tFA.rh.cab\tMD.rh.cab\tRD.rh.cab\tAD.rh.ccg\tFA.rh.ccg\tMD.rh.ccg\tRD.rh.ccg\tAD.rh.cst\tFA.rh.cst\tMD.rh.cst\tRD.rh.cst\tAD.rh.ilf\tFA.rh.ilf\tMD.rh.ilf\tRD.rh.ilf\tAD.rh.slfp\tFA.rh.slfp\tMD.rh.slfp\tRD.rh.slfp\tAD.rh.slft\tFA.rh.slft\tMD.rh.slft\tRD.rh.slft\tAD.rh.unc\tFA.rh.unc\tMD.rh.unc\tRD.rh.unc\tLeft-Lateral-Ventricle\tLeft-Inf-Lat-Vent\tLeft-Cerebellum-White-Matter\tLeft-Cerebellum-Cortex\tLeft-Thalamus-Proper\tLeft-Caudate\tLeft-Putamen\tLeft-Pallidum	3rd-Ventricle\t4th-Ventricle\tBrain-Stem\tLeft-Hippocampus\tLeft-Amygdala\tCSF\tLeft-Accumbens-area\tLeft-VentralDC\tLeft-vessel\tLeft-choroid-plexus\tRight-Lateral-Ventricle\tRight-Inf-Lat-Vent\tRight-Cerebellum-White-Matter\tRight-Cerebellum-Cortex\tRight-Thalamus-Proper\tRight-Caudate\tRight-Putamen\tRight-Pallidum\tRight-Hippocampus\tRight-Amygdala\tRight-Accumbens-area\tRight-VentralDC\tRight-vessel\tRight-choroid-plexus\t5th-Ventricle\tWM-hypointensities\tLeft-WM-hypointensities\tRight-WM-hypointensities\tnon-WM-hypointensities\tLeft-non-WM-hypointensities\tRight-non-WM-hypointensities\tOptic-Chiasm\tCC_Posterior\tCC_Mid_Posterior\tCC_Central\tCC_Mid_Anterior	CC_Anterior\tBrainSegVol\tBrainSegVolNotVent\tBrainSegVolNotVentSurf\tlhCortexVol\trhCortexVol\tCortexVol\tlhCorticalWhiteMatterVol\trhCorticalWhiteMatterVol\tCorticalWhiteMatterVol\tSubCortGrayVol\tTotalGrayVol\tSupraTentorialVol\tSupraTentorialVolNotVent\tSupraTentorialVolNotVentVox\tMaskVol\tBrainSegVol-to-eTIV\tMaskVol-to-eTIV\tlhSurfaceHoles\trhSurfaceHoles\tSurfaceHoles\tEstimatedTotalIntraCranialVol" >> $Study/$tracdir/tractography_output/database
+fi
+
+#For each value in array, read second line and add to database file
+filename='/home/scanlab/Desktop/Derek/TRACULA_TBIMODEL_list'
+filelines=`cat $filename`
+echo Start
+for PARTIC in $filelines; do
+	#Delete existing stats folder
+	rm -rf $Study/$tracdir/tractography_output/$PARTIC/stats
+	#Extract stats
+	#Convert output to table format for group analysis
+	mkdir $Study/$tracdir/tractography_output/$PARTIC/stats/ 
+	mkdir $Study/$tracdir/tractography_output/$PARTIC/stats/export
+	mkdir $Study/$tracdir/tractography_output/$PARTIC/stats/tables 
+	echo 'fmajor_PP_avg33_mni_bbr
+	fminor_PP_avg33_mni_bbr
+	lh.atr_PP_avg33_mni_bbr
+	lh.cab_PP_avg33_mni_bbr
+	lh.ccg_PP_avg33_mni_bbr
+	lh.cst_AS_avg33_mni_bbr
+	lh.ilf_AS_avg33_mni_bbr
+	lh.slfp_PP_avg33_mni_bbr
+	lh.slft_PP_avg33_mni_bbr
+	lh.unc_AS_avg33_mni_bbr
+	rh.atr_PP_avg33_mni_bbr
+	rh.cab_PP_avg33_mni_bbr
+	rh.ccg_PP_avg33_mni_bbr
+	rh.cst_AS_avg33_mni_bbr
+	rh.ilf_AS_avg33_mni_bbr
+	rh.slfp_PP_avg33_mni_bbr
+	rh.slft_PP_avg33_mni_bbr
+	rh.unc_AS_avg33_mni_bbr' > $Study/$tracdir/tractography_output/$PARTIC/stats/TRACULA_tracts.txt
+	filename_tract=$Study/$tracdir/tractography_output/$PARTIC/stats/TRACULA_tracts.txt
+	filelines_tracts=`cat $filename_tract`
+	for tract in $filelines_tracts; do        
+		#FA vals
+		tractstats2table --inputs $Study/$tracdir/tractography_output/$PARTIC/dpath/$tract/pathstats.overall.txt --overall --only-measures FA_Avg --tablefile $Study/$tracdir/tractography_output/$PARTIC/stats/tables/$tract.FA.table         
+		echo FA."$tract" | cut -f1 -d"_"  > $Study/$tracdir/tractography_output/$PARTIC/stats/export/$tract.FA.num
+		cat $Study/$tracdir/tractography_output/$PARTIC/stats/tables/$tract.FA.table | grep -Ewo '[0-9]\.[0-9]*' $xargs >> $Study/$tracdir/tractography_output/$PARTIC/stats/export/$tract.FA.num
+		#MD vals
+		tractstats2table --inputs $Study/$tracdir/tractography_output/$PARTIC/dpath/$tract/pathstats.overall.txt --overall --only-measures MD_Avg --tablefile $Study/$tracdir/tractography_output/$PARTIC/stats/tables/$tract.MD.table         
+		echo MD."$tract" | cut -f1 -d"_"  > $Study/$tracdir/tractography_output/$PARTIC/stats/export/$tract.MD.num               
+		cat $Study/$tracdir/tractography_output/$PARTIC/stats/tables/$tract.MD.table | grep -Ewo '[0-9]\.[0-9]*' $xargs >> $Study/$tracdir/tractography_output/$PARTIC/stats/export/$tract.MD.num
+		#RD vals
+		tractstats2table --inputs $Study/$tracdir/tractography_output/$PARTIC/dpath/$tract/pathstats.overall.txt --overall --only-measures RD_Avg --tablefile $Study/$tracdir/tractography_output/$PARTIC/stats/tables/$tract.RD.table         
+		echo RD."$tract" | cut -f1 -d"_"  > $Study/$tracdir/tractography_output/$PARTIC/stats/export/$tract.RD.num               
+		cat $Study/$tracdir/tractography_output/$PARTIC/stats/tables/$tract.RD.table | grep -Ewo '[0-9]\.[0-9]*' $xargs >> $Study/$tracdir/tractography_output/$PARTIC/stats/export/$tract.RD.num
+		#AD vals
+		tractstats2table --inputs $Study/$tracdir/tractography_output/$PARTIC/dpath/$tract/pathstats.overall.txt --overall --only-measures AD_Avg --tablefile $Study/$tracdir/tractography_output/$PARTIC/stats/tables/$tract.AD.table         
+		echo AD."$tract" | cut -f1 -d"_"  > $Study/$tracdir/tractography_output/$PARTIC/stats/export/$tract.AD.num               
+		cat $Study/$tracdir/tractography_output/$PARTIC/stats/tables/$tract.AD.table | grep -Ewo '[0-9]\.[0-9]*' $xargs >> $Study/$tracdir/tractography_output/$PARTIC/stats/export/$tract.AD.num
+	done
+
+	#Calculate global FA
+	rm $Study/$tracdir/tractography_output/$PARTIC/stats/export/Global_FA
+	echo "Global_FA" > $Study/$tracdir/tractography_output/$PARTIC/stats/export/Global_FA.num
+	echo `fslstats $Study/$tracdir/tractography_output/$PARTIC/dmri/dtifit_FA.nii.gz -m` >> $Study/$tracdir/tractography_output/$PARTIC/stats/export/Global_FA.num
+
+	paste $Study/$tracdir/tractography_output/$PARTIC/stats/export/* > $Study/$tracdir/tractography_output/$PARTIC/stats/ALLTRACTS_$PARTIC
+
+	echo -en '\n'
+	echo -en '\n' 
+	echo -en '\n' 
+	echo -en '\n' 
+	echo -e 'TRACULA DONE!'
+
+	#Generate GM Volume Table
+asegstats2table -s $Study/$tracdir/diffusion_recons/$PARTIC/ --tablefile $Study/$tracdir/diffusion_recons/$PARTIC/aseg_stats_vals_int.table
+	awk 'BEGIN{FS=OFS="\t"}{$1="";sub("\t","")}1' $Study/$tracdir/diffusion_recons/$PARTIC/aseg_stats_vals_int.table > $Study/$tracdir/diffusion_recons/$PARTIC/aseg_stats_vals.table
+	pr -tmJ $Study/$tracdir/tractography_output/$PARTIC/stats/ALLTRACTS_$PARTIC $Study/$tracdir/diffusion_recons/$PARTIC/aseg_stats_vals.table > $Study/$tracdir/tractography_output/$PARTIC/stats/ALLTRACTS_AND_GMSTATS_"$PARTIC"
+
+	#Append stats to delimited database file
+	if [ -e $Study/$tracdir/tractography_output/$PARTIC/stats/ALLTRACTS_$PARTIC ]; then
+	    echo -en '\n'
+	    echo "Creating line for "$PARTIC"..."
+	    sed -n -e 's/^/\t/' -e 's/^/'"$PARTIC"'/' -e '2{p;q}' $Study/$tracdir/tractography_output/$PARTIC/stats/ALLTRACTS_AND_GMSTATS_"$PARTIC" >> $Study/$tracdir/tractography_output/database
+	    echo -en '\n'
+	    echo "Line created."
+	else
+	    echo -en '\n'
+	    echo ""$PARTIC" is missing ALLTRACTS data!"
+	fi
+	echo "Done $PARTIC"
+
+done
+echo -en '\n'
+echo "All complete."

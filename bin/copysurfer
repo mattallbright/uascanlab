@@ -1,0 +1,27 @@
+#!/bin/bash
+
+for D in `find /data2/blt/FreeSurferSegmentation/* -type d -name "*T1" -maxdepth 0`
+do
+	VISIT=`echo $D | sed 's/.*\///' | cut -c5-6` 
+	PARTIC=`echo $D | sed 's/.*\///' | cut -c1-4`
+	PARTIC2=`echo $D | sed 's/.*\///'`	
+	cp -a /data2/blt/FreeSurferSegmentation/$PARTIC2 /data2/blt/TRACULA/diffusion_recons
+	mv /data2/blt/TRACULA/diffusion_recons/$PARTIC2 /data2/blt/TRACULA/diffusion_recons/"$PARTIC"_1
+	echo "Done "$PARTIC"_1"
+	unset $VISIT
+	unset $PARTIC
+	unset $PARTIC2			
+done
+
+for D in `find /data2/blt/FreeSurferSegmentation/* -type d -name "*T2" -maxdepth 0`
+do
+	PARTIC=`echo $D | sed 's/.*\///' | cut -c1-4`
+	PARTIC2=`echo $D | sed 's/.*\///'`
+	cp -a /data2/blt/FreeSurferSegmentation/$PARTIC2 /data2/blt/TRACULA/diffusion_recons
+	mv /data2/blt/TRACULA/diffusion_recons/$PARTIC2 /data2/blt/TRACULA/diffusion_recons/"$PARTIC"_2
+	echo "Done "$PARTIC"_2"
+	unset $VISIT
+	unset $PARTIC
+	unset $PARTIC2			
+done
+
