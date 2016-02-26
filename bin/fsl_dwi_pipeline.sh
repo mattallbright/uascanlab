@@ -621,7 +621,7 @@ if [ $probtracking -eq "1" ]; then
 		mask_file=`basename "$seed_mask"`
 		mask_name=${mask_file%.nii*}
 		echo -e "Starting tracking for region: $mask_name..."
-		probtrackx --mode=seedmask -x "$seed_mask" -l -c 0.2 -S 2000 --steplength=0.5 -P 5000 --forcedir --opd --pd -s $Study/$tracdir/tractography_output/$PARTIC/dmri.bedpostX/merged -m $Study/$tracdir/tractography_output/$PARTIC/dmri/nodif_brain_mask.nii.gz --dir=$Study/$tracdir/tractography_output/$PARTIC/probtrackx --out=${mask_name}.nii.gz
+		fsl_sub probtrackx --mode=seedmask -x "$seed_mask" -l -c 0.2 -S 2000 --steplength=0.5 -P 5000 --forcedir --opd --pd -s $Study/$tracdir/tractography_output/$PARTIC/dmri.bedpostX/merged -m $Study/$tracdir/tractography_output/$PARTIC/dmri/nodif_brain_mask.nii.gz --omatrix3 --dir=$Study/$tracdir/tractography_output/$PARTIC/probtrackx --out=${mask_name}.nii.gz
 	done
 
 	cd $Study/$tracdir/tractography_output/$PARTIC/probtrackx

@@ -100,8 +100,10 @@ if [ -z "$dwi_dir_name" ]; then
 	dwi_dir=`zenity --file-selection --directory --filename=$RAW_data/$PARTIC --title="Please Specify the Directory Containing the Raw DWI DICOMs to Process"`
 fi
 
-if [ -z "$P2A_name" ]; then
-	P2A=`zenity --file-selection --directory --filename=$RAW_data/$PARTIC --title="Please Specify the Directory Containing the P->A B0 DICOMs"`
+if [ $eddy_type -eq "1" ]; then
+	if [ -z "$P2A_name" ]; then
+		P2A=`zenity --file-selection --directory --filename=$RAW_data/$PARTIC --title="Please Specify the Directory Containing the P->A B0 DICOMs"`
+	fi
 fi
 
 #Select T1 MPRAGE Directory
