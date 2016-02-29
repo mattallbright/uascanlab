@@ -1,0 +1,62 @@
+#!/bin/bash
+#rsynctonas
+#Created by Derek Pisner
+#Edited by Matt Allbright
+#Automatically detects the hostname of the Linux workstations, and then rsyncs
+#all data on shared drives to an NAS system.
+#This script is located in /usr/local/bin
+
+#Initial echo debug
+echo "Backing up to local NAS..."
+
+#Check for hostname
+if [ `hostname` = "rufus" ]; then
+
+  #Debug message
+  echo -en '\n'
+  echo "Found rufus!"
+
+  rsync -avz --exclude=.Trash /data/BLPTSD/ linux@10.224.61.221:/data/BLPTSD --log-file=hpc-user-rsync.log
+  rsync -avz --exclude=.Trash /data2/emot/ linux@10.224.61.221:/data2/emot --log-file=hpc-user-rsync.log
+
+  #Debug message
+  echo -en '\n'
+  echo "Backed up rufus!"
+
+#Check for hostname
+elif [ `hostname` = "norman" ]; then
+
+  #Debug message
+  echo -en '\n'
+  echo "Found norman!"
+
+  rsync -avz --exclude=.Trash /data/tbimodel/ linux@10.224.61.221:/data/tbimodel --log-file=hpc-user-rsync.log
+  rsync -avz --exclude=.Trash /data/TBIMODEL/ linux@10.224.61.221:/data/TBIMODEL --log-file=hpc-user-rsync.log
+  rsync -avz --exclude=.Trash /data2/Cogr/ linux@10.224.61.221:/data2/Cogr --log-file=hpc-user-rsync.log
+
+  #Debug message
+  echo -en '\n'
+  echo "Backed up norman!"
+
+#Check for hostname
+elif [ `hostname` = "wilbur" ]; then
+
+  #Debug message
+  echo -en '\n'
+  echo "Found wilbur!"
+
+  rsync -avz --exclude=.Trash /data/BLHC/ linux@10.224.61.221:/data/BLHC --log-file=hpc-user-rsync.log
+  rsync -avz --exclude=.Trash /data/'EWM Behavioral'/ linux@10.224.61.221:/data/EWM/'EWM Behavioral' --log-file=hpc-user-rsync.log
+  rsync -avz --exclude=.Trash /data/EWM/ linux@10.224.61.221:/data/EWM --log-file=hpc-user-rsync.log
+  rsync -avz --exclude=.Trash /data2/blt/ linux@10.224.61.221:/data2/blt --log-file=hpc-user-rsync.log
+
+  #Debug message
+  echo -en '\n'
+  echo "Backed up wilbur!"
+
+#Debug for undetected hostname
+else
+  echo -en '\n'
+  echo "Hostname not found!"
+
+fi
