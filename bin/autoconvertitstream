@@ -1,0 +1,20 @@
+#!/bin/bash
+#autoconvertitstream
+
+# Finds files which have changed in the last 24 hours, may want to modify how autoconvertit uses its RAW_data pull for this
+find "/Hermes" -maxdepth 1 -mtime 1 | grep "_scans" | grep -v ".DS_Store"
+
+# Convert entire path to string
+
+# Convert path parts to strings
+
+# Remove /Hermes
+DIR = echo PATH | sed 's:^/Hermes::'
+
+# Determine $STUDY
+# Determine $PARTIC
+
+# Sets each value as a loading path for autoconvertit
+
+# Executes autoconvertit with paths
+bash /usr/local/bin/autoconvertit
