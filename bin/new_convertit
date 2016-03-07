@@ -32,7 +32,7 @@ unset ISBOTH
 
 echo -en '\n'
 echo "What root directory contains your studies? Please"
-echo "enter it as /path/to$DATADIR"
+echo "enter it as /path/to/datadir"
 read $DATADIR
 
 cd $DATADIR
