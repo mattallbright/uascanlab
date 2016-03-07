@@ -41,7 +41,7 @@ cd $DATADIR
 echo -en '\n'
 
 #Create study array for possible studies
-studydirarray=(*/)
+studydirarray=($DATADIR/*)
 for STUDYDIR in ${studydirarray[*]}
 do
 	echo printf "%s\n" $STUDYDIR
