@@ -1,20 +1,76 @@
 #!/bin/bash
 #autoconvertitstream
 
-# Finds files which have changed in the last 24 hours, may want to modify how autoconvertit uses its RAW_data pull for this
-find "/Hermes" -maxdepth 1 -mtime 1 | grep "_scans" | grep -v ".DS_Store"
+# Create array
+studyarray=()
 
-# Convert entire path to string
+#For each value in the array, add the $PATH
+while IFS= read -r -d $'\0'; do
+  studyarray+=("$PATH")
 
-# Convert path parts to strings
+# Finds $PATH directories which have changed in the last 24 hours and adds them
+done < <(`find "/Hermes" -maxdepth 1 -mtime 1 | grep "_scans" | grep -v ".DS_Store"`)
 
-# Remove /Hermes
-DIR = echo PATH | sed 's:^/Hermes::'
+# For $PATH value {{{
+for i in "${studyarray[@]}"; do
 
-# Determine $STUDY
-# Determine $PARTIC
+  # Debug
+  echo $i
 
-# Sets each value as a loading path for autoconvertit
+  # Remove /Hermes and everything after _scans
+  STUDY = echo $i | sed 's:^/Hermes::' -e 's/_.*//'
+  echo "$STUDY"
 
-# Executes autoconvertit with paths
-bash /usr/local/bin/autoconvertit
+  # If $STUDY does not exist, debug message
+  if [ -d /data/$STUDY ] || [ -d /data2/$STUDY ]; then
+    echo "Directory for $STUDY already exists."
+
+    # Set $STUDYDIR
+    if [-d /data/$STUDY ]; then
+      $STUDYDIR = "/data/$STUDY"
+      echo "$STUDYDIR"
+
+    elif [ -d /data2/$STUDY ]
+      $STUDYDIR = "/data2/$STUDY"
+      echo $STUDYDIR
+
+    #Bug net
+    else
+      echo "There has been an error determining the directory."
+      sleep 5
+      exit
+    fi
+
+  # Else create $STUDY
+  else
+    echo "Creating directory for $STUDY."
+    # mkdir /data/$STUDY
+    # $STUDYDIR = /data/$STUDY
+  fi
+
+  particarray=()
+
+  while IFS= read -r -d $'\0'; do
+    studyarray+=("$PATH")
+
+  # Finds $PARTIC directories which have changed in the last 24 hours and adds them
+done < <(`find "/Hermes/'$STUDY'_scans/" -maxdepth 1 -mtime 1 | grep "_scans" | grep -v ".DS_Store"`)
+
+  # For $PARTIC value {{
+
+    # Determine $PARTIC
+    # If $PARTIC does not exist, create $PARTIC folder
+    echo "Creating directory for $PARTIC"
+
+    # Sets each value as a loading path for autoconvertit
+
+    # Executes autoconvertit with paths
+    echo "Executing autoconvertit for $PARTIC"
+    # bash /usr/local/bin/autoconvertit
+    wait
+
+    # }} End $PARTIC loop
+
+done
+
+# }}} End $STUDY loop
