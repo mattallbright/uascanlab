@@ -1,76 +1,85 @@
 #!/bin/bash
 #autoconvertitstream
 
-# Create array
-studyarray=()
+#Creates and adds each $HERMESSTUDYPATH to the rawstudyarray
+rawstudyarray=(`find "/Hermes" -maxdepth 1 -mtime 1 | grep "_scans" | grep -v ".DS_Store"`)
 
-#For each value in the array, add the $PATH
-while IFS= read -r -d $'\0'; do
-  studyarray+=("$PATH")
+#For $HERMESSTUDYPATH value in array of all path values {{{
+for HERMESSTUDYPATH in "${rawstudyarray[@]}"; do
 
-# Finds $PATH directories which have changed in the last 24 hours and adds them
-done < <(`find "/Hermes" -maxdepth 1 -mtime 1 | grep "_scans" | grep -v ".DS_Store"`)
+  #Debug displaying the study's path
+  echo $HERMESSTUDYPATH
 
-# For $PATH value {{{
-for i in "${studyarray[@]}"; do
-
-  # Debug
-  echo $i
-
-  # Remove /Hermes and everything after _scans
-  STUDY = echo $i | sed 's:^/Hermes::' -e 's/_.*//'
+  #Remove /Hermes and everything after _scans
+  STUDY = echo $HERMESSTUDYPATH | sed 's:^/Hermes::' -e 's/_.*//'
   echo "$STUDY"
 
-  # If $STUDY does not exist, debug message
+  #If $STUDY does not exist, debug message
   if [ -d /data/$STUDY ] || [ -d /data2/$STUDY ]; then
     echo "Directory for $STUDY already exists."
 
-    # Set $STUDYDIR
+    #Set $DESTINATIONSTUDYPATH
     if [-d /data/$STUDY ]; then
-      $STUDYDIR = "/data/$STUDY"
-      echo "$STUDYDIR"
 
-    elif [ -d /data2/$STUDY ]
-      $STUDYDIR = "/data2/$STUDY"
-      echo $STUDYDIR
+      #Init $DATADIR path string
+      DATADIR = "/data"
 
-    #Bug net
+      #Set $DESTINATIONSTUDYPATH
+      DESTINATIONSTUDYPATH = "/data/$STUDY"
+      echo "$DESTINATIONSTUDYPATH"
+
+    elif [ -d /data2/$STUDY ]; then
+
+      #Init $DATADIR path string
+      DATADIR = "/data2"
+
+      #Set $DESTINATIONSTUDYPATH
+      DESTINATIONSTUDYPATH = "/data2/$STUDY"
+      echo $DESTINATIONSTUDYPATH
+
+    #Net for catching issue where somehow $STUDY fails to exist after determining that it does
     else
       echo "There has been an error determining the directory."
       sleep 5
       exit
     fi
 
-  # Else create $STUDY
+  #Else create $STUDY
   else
-    echo "Creating directory for $STUDY."
-    # mkdir /data/$STUDY
-    # $STUDYDIR = /data/$STUDY
+    echo "Unknown study. Creating directory for $STUDY."
+    mkdir $DATADIR/$STUDY
+    DESTINATIONSTUDYPATH = $DATADIR/$STUDY
   fi
 
-  particarray=()
+  #Creates required indiv_analysis folder
+  if [ ! -d $DESTINATIONSTUDYPATH/indiv_analysis ] ; then
+    mkdir $DESTINATIONSTUDYPATH/indiv_analysis
+  fi
 
-  while IFS= read -r -d $'\0'; do
-    studyarray+=("$PATH")
+  #Creates required RAW_data folder
+  if [ ! -d $DESTINATIONSTUDYPATH/RAW_data ]; then
+    mkdir $DESTINATIONSTUDYPATH/RAW_data
+  fi
 
-  # Finds $PARTIC directories which have changed in the last 24 hours and adds them
-done < <(`find "/Hermes/'$STUDY'_scans/" -maxdepth 1 -mtime 1 | grep "_scans" | grep -v ".DS_Store"`)
+  #Finds $PARTIC directories which have changed recently and adds to array
+  rawparticarray=`(find "/Hermes/'$STUDY'_scans/" -maxdepth 1 -mtime 1 | grep -v '(".DS_Store"|"_1"|"_2")')`
 
-  # For $PARTIC value {{
+  #For $PARTIC value {{
+  for PARTICPATH in "${rawparticarray[@]}"; do
 
-    # Determine $PARTIC
-    # If $PARTIC does not exist, create $PARTIC folder
+    #Determine $PARTIC
+    #If $PARTIC does not exist, create $PARTIC folder
     echo "Creating directory for $PARTIC"
 
-    # Sets each value as a loading path for autoconvertit
+    #Sets each value as a loading path for autoconvertit
 
-    # Executes autoconvertit with paths
+    #Executes autoconvertit with paths
     echo "Executing autoconvertit for $PARTIC"
-    # bash /usr/local/bin/autoconvertit
+    #bash /usr/local/bin/autoconvertit
     wait
 
-    # }} End $PARTIC loop
+    #}} End $PARTIC loop
 
 done
 
-# }}} End $STUDY loop
+#}}} End $STUDY loop

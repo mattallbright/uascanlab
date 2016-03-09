@@ -1,5 +1,5 @@
-#!/bin/sh
-#new_convertit
+#!/bin/bash
+#autoconvertit
 #Created by Derek Pisner
 #Edited by Matt Allbright
 
@@ -14,21 +14,6 @@ echo -e "\e[0;31mtasks for a given participant.\e[0m"
 echo -e "\e[0;31mType cntrl+c at any time to stop the script. \e[0m"
 echo -en '\n'
 echo "Created by Derek Pisner and Matt Allbright"
-
-#Unset values
-unset DATADIR
-unset STUDY
-unset RAW_data
-unset VISIT
-unset PARTIC
-unset TASKVALUE
-unset TASK
-unset BOLDVALUE
-unset BOLDDONE
-unset ANATSTRING
-unset ANAT
-unset NumbAnat
-unset ISBOTH
 
 echo -en '\n'
 echo "What root directory contains your studies? Please"
