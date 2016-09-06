@@ -5,14 +5,14 @@
 
 ##script should be given execute permissions and should be located in the data directory!
 #Welcome
-echo  '\n'
+
 echo  "Welcome to the new and more robust CONVERTIT. This simple UNIX script will "
 echo  "quickly convert dcm images to nifti, move and rename those nifti images to "
 echo  "their respective individual analysis directory, and prepare them for analysis "
 echo  "in SPM. This version will populate all images (BOLD and anatomical) for all "
 echo  "tasks for a given participant."
 echo  "Type cntrl+c at any time to stop the script. "
-echo  '\n'
+
 echo "Created by Derek Pisner and Matt Allbright"
 
 #Unset values
@@ -50,14 +50,14 @@ done
 #Checks if folders exist in base directory, then asks for study folder.
 if [[ -n ${studydirarray[*]} ]]; then
 
-	echo  '\n'
+
 	echo  "What is the name of the study?"
 	echo "Be aware that each of these is a folder name"
 	echo "and that certain folders might not be studies."
-	echo  '\n'
+
 	echo  "If your study does not exist, type 'new' to"
 	echo "create a new study."
-	echo  '\n'
+
 
 	select STUDY in ${studydirarray[*]}
 	do
@@ -68,18 +68,18 @@ if [[ -n ${studydirarray[*]} ]]; then
 		#New study creation, occurs if user input 'new'
 		elif [[ $REPLY == "new" ]]; then
 			unset
-			echo  '\n'
+
 			echo  "Type in the name of the new study."
 			echo  "If you are seeing this screen by mistake, type 'back'"
 			echo "to return to the main menu."
-			echo  '\n'
+
 			while read STUDY; do
 
 				#Study already exists error
 				if [[ -d $DATADIR/$STUDY ]]; then
 					echo "This is already a valid study. Please input"
 					echo "a new study or type 'back' to return to the main menu."
-					echo  '\n'
+
 
 				#NEEDSWORK Sends user back to main menu
 				elif [[ $STUDY == "back" ]]; then
@@ -116,7 +116,7 @@ if [[ -n $NEWSTUDY ]] && [[ ! -d $DATADIR/$STUDY ]]; then
 	echo "Welcome to a new study creation session."
 	echo "RAW_data and indiv_analysis have been created"
 	echo  "for you. Create more directories? y/n"
-	echo  '\n'
+
 	read NEWSTUDYFOLDER
 
 	#If user chooses yes to create more directories it will initialize a file which tracks all folders
@@ -128,7 +128,7 @@ if [[ -n $NEWSTUDY ]] && [[ ! -d $DATADIR/$STUDY ]]; then
 		#New study folder creation (More directories edition)
 		while [[ $DIRCREATEDONE == "n" ]]; do
 			ls -d /$STUDY
-			echo  '\n'
+
 			echo "Type in a directory name to create it."
 			read NEWDIRVALUE
 
@@ -136,9 +136,9 @@ if [[ -n $NEWSTUDY ]] && [[ ! -d $DATADIR/$STUDY ]]; then
 
 			mkdir $STUDY/"$NEWDIRVALUE"
 
-			echo  '\n'
+
 			ls -d /$STUDY
-			echo  '\n'
+
 
 			#Ending prompt
 			echo  "Does this complete the new directory setup? y/n"
@@ -149,7 +149,7 @@ if [[ -n $NEWSTUDY ]] && [[ ! -d $DATADIR/$STUDY ]]; then
 					echo "Please enter y/n."
 				fi
 			done
-			echo  '\n'
+
 		done
 
 	#If user okays that indiv_analysis and RAW_data are the only folders
@@ -162,10 +162,10 @@ if [[ -n $NEWSTUDY ]] && [[ ! -d $DATADIR/$STUDY ]]; then
 	fi
 fi
 
-echo  '\n'
+
 
 #Choose Participant
-echo  '\n'
+
 cd $STUDY/RAW_data/
 
 #Create participant array for valid participants
@@ -178,12 +178,12 @@ done
 #Determine if array exists
 if [[ -n ${particdirarray[*]} ]]; then
 
-	echo  '\n'
+
 	echo  "Which participant?"
 	echo "Be aware that participants who are currently"
 	echo "not setup on this terminal may not appear."
 	echo  "For new participants, please type 'new'."
-	echo  '\n'
+
 	select PARTIC in ${particdirarray[*]}
 	do
 
@@ -192,7 +192,7 @@ if [[ -n ${particdirarray[*]} ]]; then
 
 		#New partic creation
 		elif [[ $REPLY == "new" ]]; then
-			echo  '\n'
+
 			echo  "Type in the name of the new participant."
 			read NEWPARTIC
 			PARTIC=$NEWPARTIC
@@ -208,10 +208,10 @@ else
 fi
 
 
-echo  '\n'
+
 
 #Choose Longitudinal or Single Visit
-echo  '\n'
+
 echo  "Longitudinal (2) or One-Day Visit (1)?"
 while read VISITTYPE; do
 	if [[ $VISITTYPE == "1" ]] || [[ $VISITTYPE == "2" ]]; then
@@ -227,7 +227,7 @@ if [ $VISITTYPE q "1" ]; then
 elif [ $VISITTYPE q "2" ]; then
 
 	#Choose Visit
-	echo  '\n'
+
 	echo  "Which visit (either Baseline or PostTX or Both)?"
 	while read VISIT; do
 		if [[ $VISIT == "Baseline" ]] || [[ $VISIT == "PostTX" ]] || [ $VISIT == "Both" ]; then
@@ -238,7 +238,7 @@ elif [ $VISITTYPE q "2" ]; then
 	done
 fi
 
-echo  '\n'
+
 
 
 if [[ $VISIT == "Baseline" ]] || [[ $VISIT == "dayofscan" ]] || [[ $VISIT == "Both" ]] && [[ -d $DATADIR/$STUDY/RAW_data/"$PARTIC" ]]; then
@@ -329,12 +329,12 @@ if [[ ! -d $DATADIR/$STUDY/indiv_analysis/"$PARTIC" ]]; then
 	if [[ ! -d $DATADIR/"$STUDY"/indiv_analysis/x ]]; then
 		TEMPLATECORRECT=n
 	else
-		echo  '\n'
+
 		echo "A templated directory already exists."
 		echo "Below is a list of all the analysis folders."
-		echo  '\n'
+
 		cat $DATADIR/"$STUDY"/indiv_analysis/x/tasks.txt
-		echo  '\n'
+
 		echo  "Is this correct? y/n "
 		while read TEMPLATECORRECT; do
 			if [[ $TEMPLATECORRECT == "y" ]] || [[ $TEMPLATECORRECT == "n" ]]; then
@@ -377,7 +377,7 @@ if [[ ! -d $DATADIR/$STUDY/indiv_analysis/"$PARTIC" ]]; then
 			mkdir -p fieldmaps/temp/Phase/PostTX
 		fi
 
-#		echo  '\n'
+#
 #		echo  "Does your setup require only the rest test (ie no anticipation test)? y/n"
 #		echo "This is incredibly uncommon. Type 'n' if you're not sure."
 #		while read BOLDDONE; do
@@ -391,7 +391,7 @@ if [[ ! -d $DATADIR/$STUDY/indiv_analysis/"$PARTIC" ]]; then
 		#BOLD/3danat folder creation and templating
 		while [[ $BOLDDONE == "n" ]]; do
 			cat tasks.txt
-			echo  '\n'
+
 			echo  "Welcome to the 3danat/BOLD setup. Type a test name to create folder template."
 			echo "The temprorary skeelton folder 'temp' has already been created."
 			read BOLDVALUE
@@ -420,9 +420,9 @@ if [[ ! -d $DATADIR/$STUDY/indiv_analysis/"$PARTIC" ]]; then
 				mkdir -p fieldmaps/"$BOLDVALUE"/Phase/PostTX
 			fi
 
-			echo  '\n'
+
 			cat tasks.txt
-			echo  '\n'
+
 
 			echo  "Does this complete the 3danat BOLD setup? y/n"
 			while read BOLDDONE; do
@@ -432,7 +432,7 @@ if [[ ! -d $DATADIR/$STUDY/indiv_analysis/"$PARTIC" ]]; then
 					echo "Please enter y/n."
 				fi
 			done
-			echo  '\n'
+
 		done
 		#Removes extraneous 3danat folder created in the previous step
 		rm -r 3danat_/
@@ -457,15 +457,15 @@ fi
 
 ##BASELINE/DAYOFSCAN
 #Baseline/Day of Scan Check Phase
-echo  '\n'
+
 echo "Baseline/Day of Scan Check Phase"
-echo  '\n'
+
 echo "You entered" $VISIT
-echo  '\n'
+
 
 if [[ $VISIT == "Baseline" ]] || [[ $VISIT == "dayofscan" ]] || [[ $VISIT == "Both" ]]; then
 	echo  "\e[0;32mBaseline/Day of Scan Check Passed!"
-	echo  '\n'
+
 
 	cd $DATADIR/$STUDY
 	#Remove all spaces and hyphens with underscores in raw directory names
@@ -481,7 +481,7 @@ if [[ $VISIT == "Baseline" ]] || [[ $VISIT == "dayofscan" ]] || [[ $VISIT == "Bo
 	if [[ $NumbAnat == "0" ]]; then
 
 		#Find T1 Anat String
-		echo  '\n'
+
 		echo "Anatomical Directory not found."
 		echo "Type in part of the name of the Anatomical directory you would like to search for."
 		read ANATSTRING
@@ -494,11 +494,11 @@ if [[ $VISIT == "Baseline" ]] || [[ $VISIT == "dayofscan" ]] || [[ $VISIT == "Bo
 	#Find the anatomical directory
 	ANAT=`find $DATADIR/$STUDY/RAW_data/"$PARTIC" -iname "$ANATSTRING"* -print | sort -r -V | tail -1 | sed 's/.*\///'`
 
-	echo  '\n'
+
 	echo "Test event: Anatomical .nii file deletion imminent!"
-	echo  '\n'
+
 	echo  ".nii files are fine to delete, but .dcm files are not!"
-	echo  '\n'
+
 
 	#Delete any prexisting nifti files in directory
 	cd $DATADIR/$STUDY/RAW_data/"$PARTIC"/"$ANAT"
@@ -547,14 +547,14 @@ if [[ $VISIT == "Baseline" ]] || [[ $VISIT == "dayofscan" ]] || [[ $VISIT == "Bo
 			find ./ -name ""$PARTIC"_Anatomical_Repeat.nii" -print | xargs cp -pt $DATADIR/$STUDY/indiv_analysis/"$PARTIC"/3danat_"$TASKVALUE"/"$VISIT"
 		done < $DATADIR/$STUDY/indiv_analysis/$PARTIC/tasks.txt
 	else
-		echo  '\n'
+
 		echo "_____________"
-		echo  '\n'
+
 		echo "No Repeat Anatomical"
 		echo "No Repeat Anatomical" >> $DATADIR/$STUDY/indiv_analysis/$PARTIC/runlog.txt
-		echo  '\n'
+
 		echo "_____________"
-		echo  '\n'
+
 	fi
 
 	#Return to $STUDY directory
@@ -563,9 +563,9 @@ if [[ $VISIT == "Baseline" ]] || [[ $VISIT == "dayofscan" ]] || [[ $VISIT == "Bo
 	sleep 5
 
 	##BOLD Tasks
-	echo  '\n'
+
 	echo "Begin BOLD Tasks"
-	echo  '\n'
+
 	sleep 2
 
 	#TASK BOLD Baseline
@@ -607,24 +607,24 @@ if [[ $VISIT == "Baseline" ]] || [[ $VISIT == "dayofscan" ]] || [[ $VISIT == "Bo
 			cd $DATADIR/$STUDY
 
 			#Echo statment
-			echo  '\n'
+
 			echo "_____________"
-			echo  '\n'
+
 			echo "Finished BOLD "$TASKVALUE" "$VISIT""
-			echo  '\n'
+
 			echo "_____________"
-			echo  '\n'
+
 
 		#If $TASK DNE, write to log and print
 		else
-			echo  '\n'
+
 			echo "_____________"
-			echo  '\n'
+
 			echo "NO "$TASKVALUE" "$VISIT" TASK RUN?!"
 			echo "NO "$TASKVALUE" "$VISIT" TASK RUN?!" >> $DATADIR/$STUDY/indiv_analysis/$PARTIC/runlog.txt
-			echo  '\n'
+
 			echo "_____________"
-			echo  '\n'
+
 
 		fi
 	sleep 2
@@ -664,13 +664,13 @@ if [[ $VISIT == "Baseline" ]] || [[ $VISIT == "dayofscan" ]] || [[ $VISIT == "Bo
 	cd $DATADIR/$STUDY
 
 	#Debug Mag
-	echo  '\n'
+
 	echo "_____________"
-	echo  '\n'
+
 	echo "Fieldmapping Mag Finished"
-	echo  '\n'
+
 	echo "_____________"
-	echo  '\n'
+
 
 	#Fieldmapping Phase
 	TASK=`find $DATADIR/$STUDY/RAW_data/"$PARTIC" -name 'field_mapping_*' -print | sort -V | tail -1 | sed 's/.*\///'`
@@ -703,13 +703,13 @@ if [[ $VISIT == "Baseline" ]] || [[ $VISIT == "dayofscan" ]] || [[ $VISIT == "Bo
 	cd $DATADIR/$STUDY
 
 	#Debug Phase
-	echo  '\n'
+
 	echo "_____________"
-	echo  '\n'
+
 	echo "Fieldmapping Phase Finished"
-	echo  '\n'
+
 	echo "_____________"
-	echo  '\n'
+
 	sleep 2
 
 fi
@@ -720,15 +720,15 @@ fi
 
 ##Post
 #Post Check Phase
-echo  '\n'
+
 echo "PostTX Check Phase"
-echo  '\n'
+
 echo "You enterered" $VISIT
-echo  '\n'
+
 
 if [[ $VISIT == "PostTX" ]] || [[ $VISIT == "Both" ]]; then
 	echo  "\e[0;32mPostTX Check Passed!"
-	echo  '\n'
+
 
 	cd $DATADIR/$STUDY
 	#Remove all spaces and hyphens with underscores in raw directory names
@@ -744,7 +744,7 @@ if [[ $VISIT == "PostTX" ]] || [[ $VISIT == "Both" ]]; then
 	if [[ $NumbAnat q "0" ]]; then
 
 		#Find T1 Anat String
-		echo  '\n'
+
 		echo "Anatomical directory not found."
 		echo "Type in part of the name of the Anatomical directory you would like to search for."
 		read ANATSTRING
@@ -757,11 +757,11 @@ if [[ $VISIT == "PostTX" ]] || [[ $VISIT == "Both" ]]; then
 	#find the anatomical directory
 	ANAT=`find $DATADIR/$STUDY/RAW_data/""$PARTIC"_2" -iname "$ANATSTRING"* -print | sort -r -V | tail -1 | sed 's/.*\///'`
 
-	echo  '\n'
+
 	echo "Test event: Anatomical .nii file deletion imminent!"
-	echo  '\n'
+
 	echo  ".nii files are fine to delete, but .dcm files are not!"
-	echo  '\n'
+
 
 	#Delete any prexisting nifti files in directory
 	cd $DATADIR/$STUDY/RAW_data/""$PARTIC"_2"/"$ANAT"
@@ -811,14 +811,14 @@ if [[ $VISIT == "PostTX" ]] || [[ $VISIT == "Both" ]]; then
 			find ./ -name ""$PARTIC"_2_Anatomical_Repeat.nii" -print | xargs cp -pt $DATADIR/$STUDY/indiv_analysis/"$PARTIC"/3danat_"$TASKVALUE"/"$VISIT"
 		done < $DATADIR/$STUDY/indiv_analysis/$PARTIC/tasks.txt
 	else
-		echo  '\n'
+
 		echo "_____________"
-		echo  '\n'
+
 		echo "No Repeat Anatomical"
 		echo "No Repeat Anatomical" >> $DATADIR/$STUDY/indiv_analysis/$PARTIC/runlog.txt
-		echo  '\n'
+
 		echo "_____________"
-		echo  '\n'
+
 	fi
 
 	#Return to $STUDY directory
@@ -827,9 +827,9 @@ if [[ $VISIT == "PostTX" ]] || [[ $VISIT == "Both" ]]; then
 	sleep 5
 
 	#BOLD Tasks
-	echo  '\n'
+
 	echo "Begin BOLD Tasks"
-	echo  '\n'
+
 	sleep 2
 
 	#Task loop for all tasks
@@ -868,24 +868,24 @@ if [[ $VISIT == "PostTX" ]] || [[ $VISIT == "Both" ]]; then
 			cd $DATADIR/$STUDY
 
 			#Echo statment
-			echo  '\n'
+
 			echo "_____________"
-			echo  '\n'
+
 			echo "Finished BOLD" "$TASKVALUE" "$VISIT"
-			echo  '\n'
+
 			echo "_____________"
-			echo  '\n'
+
 
 		#If $TASK DNE, write to log and print
 		else
-			echo  '\n'
+
 			echo "_____________"
-			echo  '\n'
+
 			echo "NO "$VALUE" "$VISIT" TASK RUN?!"
 			echo "NO" "$TASKVALUE" "$VISIT" "TASK RUN?!" >> $DATADIR/$STUDY/indiv_analysis/$PARTIC/runlog.txt
-			echo  '\n'
+
 			echo "_____________"
-			echo  '\n'
+
 
 		fi
 	sleep 2
@@ -925,13 +925,13 @@ if [[ $VISIT == "PostTX" ]] || [[ $VISIT == "Both" ]]; then
 	cd $DATADIR/$STUDY
 
 	#Debug Mag
-	echo  '\n'
+
 	echo "_____________"
-	echo  '\n'
+
 	echo "Fieldmapping Mag Finished"
-	echo  '\n'
+
 	echo "_____________"
-	echo  '\n'
+
 
 	#Fieldmapping Phase
 	TASK=`find $DATADIR/$STUDY/RAW_data/""$PARTIC"_2" -name 'field_mapping_*' -print | sort -V | tail -1 | sed 's/.*\///'`
@@ -964,18 +964,18 @@ if [[ $VISIT == "PostTX" ]] || [[ $VISIT == "Both" ]]; then
 	cd $DATADIR/$STUDY
 
 	#Debug Phase
-	echo  '\n'
+
 	echo "_____________"
-	echo  '\n'
+
 	echo "Fieldmapping Phase Finished"
-	echo  '\n'
+
 	echo "_____________"
-	echo  '\n'
+
 
 fi
 
 #Summary
-echo  '\n'
+
 if [ $DATADIR/$STUDY/indiv_analysis/$PARTIC/runlog.txt="" ]; then
 	echo "Nothing broke (or nothing is missing) after attempting to process!"
 	echo "Please check just in case."
@@ -984,4 +984,3 @@ else
 	echo "Please make sure their preliminary paths exist."
 	cat $DATADIR/$STUDY/indiv_analysis/$PARTIC/runlog.txt
 fi
-echo  '\n'
