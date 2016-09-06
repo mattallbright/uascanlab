@@ -271,7 +271,7 @@ fi
 #Baseline/Dayofscan test
 if [[ $VISIT == "Baseline" ]] || [[ $VISIT == "dayofscan" ]] && [[ $NEWWRITE == "y" ]]; then
 
-	Num=`echo $PARTIC | grep o '[0-9][0-9][0-9]'`
+	Num=`echo $PARTIC | grep -Eo '[0-9][0-9][0-9]'`
 	if [ -d /Hermes/"$STUDY"_scans ]; then
 		echo "This is your first run and might take a very long time."
 		OSIRIX=`find /Hermes/"$STUDY"_scans -maxdepth 1 -iname "*$Num*" -print | sort | tail -1 | sed 's/.*\///'`
@@ -301,7 +301,7 @@ fi
 #PostTX test
 elif [[ $VISIT == "PostTX" ]] && [[ $NEWWRITE == "y" ]]; then
 
-	Num=`echo $PARTIC | grep o '[0-9][0-9][0-9]'`
+	Num=`echo $PARTIC | grep -Eo '[0-9][0-9][0-9]'`
 	if [ -d /Hermes/"$STUDY"_scans ]; then
 		echo "This is your first run and might take a very long time."
 		OSIRIX=`find /Hermes/"$STUDY"_scans -maxdepth 1 -iname "*$Num*" -print | sort | head -1 | sed 's/.*\///'`
