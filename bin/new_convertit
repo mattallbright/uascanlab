@@ -41,7 +41,7 @@ cd $DATADIR
 
 
 #Create study array for possible studies
-studydirarray=($DATADIR/*)
+studydirarray=(*)
 for STUDYDIR in ${studydirarray[*]}
 do
 	echo printf "%s\n" $STUDYDIR
@@ -221,10 +221,10 @@ while read VISITTYPE; do
 	fi
 done
 
-if [ $VISITTYPE q "1" ]; then
+if [ $VISITTYPE -eq "1" ]; then
 	VISIT=dayofscan
 
-elif [ $VISITTYPE q "2" ]; then
+elif [ $VISITTYPE -eq "2" ]; then
 
 	#Choose Visit
 
@@ -359,14 +359,14 @@ if [[ ! -d $DATADIR/$STUDY/indiv_analysis/"$PARTIC" ]]; then
 		touch tasks.txt
 
 		#Dayofvisit Setup
-		if [ $VISITTYPE q "1" ]; then
+		if [ $VISITTYPE -eq "1" ]; then
 			mkdir -p 3danat_temp/dayofscan
 			mkdir -p bold/temp/dayofscan
 			mkdir -p fieldmaps/temp/Mag/dayofscan
 			mkdir -p fieldmaps/temp/Phase/dayofscan
 
 			#Baseline/PostTX Setup
-		elif [ $VISITTYPE q "2" ]; then
+		elif [ $VISITTYPE -eq "2" ]; then
 			mkdir -p 3danat_temp/Baseline
 			mkdir -p 3danat_temp/PostTX
 			mkdir -p bold/temp/Baseline
@@ -402,14 +402,14 @@ if [[ ! -d $DATADIR/$STUDY/indiv_analysis/"$PARTIC" ]]; then
 			mkdir -p bold/$BOLDVALUE
 
 			#Dayofvisit Setup
-			if [ $VISITTYPE q "1" ]; then
+			if [ $VISITTYPE -eq "1" ]; then
 				mkdir -p 3danat_"$BOLDVALUE"/dayofscan
 				mkdir -p bold/"$BOLDVALUE"/dayofscan
 				mkdir -p fieldmaps/"$BOLDVALUE"/Mag/dayofscan
 				mkdir -p fieldmaps/"$BOLDVALUE"/Phase/dayofscan
 
 			#Baseline/PostTX Setup
-			elif [ $VISITTYPE q "2" ]; then
+			elif [ $VISITTYPE -eq "2" ]; then
 				mkdir -p 3danat_"$BOLDVALUE"/Baseline
 				mkdir -p 3danat_"$BOLDVALUE"/PostTX
 				mkdir -p bold/"$BOLDVALUE"/Baseline
@@ -525,7 +525,7 @@ if [[ $VISIT == "Baseline" ]] || [[ $VISIT == "dayofscan" ]] || [[ $VISIT == "Bo
 	cd $DATADIR/$STUDY
 
 	#Repeat Anatomical
-	if [ $NumbAnat q "2" ]; then
+	if [ $NumbAnat -eq "2" ]; then
 
 		#Find Repeat Anatomical
 		ANAT2=`find $DATADIR/$STUDY/RAW_data/"$PARTIC" -iname "$ANATSTRING"* -print | sort -r | tail -1 | sed 's/.*\///'`
@@ -741,7 +741,7 @@ if [[ $VISIT == "PostTX" ]] || [[ $VISIT == "Both" ]]; then
 	NumbAnat=`find $DATADIR/$STUDY/RAW_data/""$PARTIC"_2" -iname 'T1_MPRAGE_1MM*' -print | wc -l`
 
 	#If anatomical directory not found, prompt user for new string and search it.
-	if [[ $NumbAnat q "0" ]]; then
+	if [[ $NumbAnat -eq "0" ]]; then
 
 		#Find T1 Anat String
 
@@ -789,7 +789,7 @@ if [[ $VISIT == "PostTX" ]] || [[ $VISIT == "Both" ]]; then
 	cd $DATADIR/$STUDY
 
 	#Repeat Anatomical
-	if [ $NumbAnat q "2" ]; then
+	if [ $NumbAnat -eq "2" ]; then
 
 		#Find Repeat Anatomical
 		ANAT2=`find $DATADIR/$STUDY/RAW_data/""$PARTIC"_2" -iname "$ANATSTRING"* -print | sort -r | tail -1 | sed 's/.*\///'`
