@@ -251,21 +251,21 @@ if [[ -n ${particdirarray[*]} ]]; then
 	echo -e "For new participants, please type '\e[0;31mnew\e[0m'."
 	echo -en '\n'
 
-	read PARTIC
+	while read PARTIC; do
 
-	if [[ " ${arr[@]} " =~ " $PARTIC " ]]; then
+		if [[ ${arr[@]} =~ $PARTIC ]]; then
 
-		echo "You have selected participant $PARTIC."
+			echo "You have selected participant $PARTIC."
 
-	#New partic creation
-	elif [[ $PARTIC == "new" ]]; then
-		echo -en '\n'
-		echo -e "\e[0;31mType in the number of the new participant.\e[0m"
-		read NEWPARTIC
-		PARTIC=$NEWPARTIC
-	else
-		echo -e "Nonvalid participant. \e[0;31mPlease type in a valid participant number.\e[0m"
-	fi
+		#New partic creation
+		elif [[ $PARTIC == "new" ]]; then
+			echo -en '\n'
+			echo -e "\e[0;31mType in the number of the new participant.\e[0m"
+			read NEWPARTIC
+			PARTIC=$NEWPARTIC
+		else
+			echo -e "Nonvalid participant. \e[0;31mPlease type in a valid participant number.\e[0m"
+		fi
 
 else
 	echo -e "There appear to be no participants. \e[0;31mType in a number of\e[0m"
@@ -273,7 +273,9 @@ else
 	read PARTIC
 fi
 
+echo -e '\n'
 echo "Moving on..."
+echo -e '\n'
 echo "Please select the schedule for the study."
 echo "This step will most likely be placed in Study Creation in future revisions."
 echo -en '\n'
