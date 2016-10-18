@@ -33,7 +33,8 @@ cd /data
 echo -en '\n'
 
 #Create study array for possible studies
-studydirarray=(*/)
+studydirarray=(*)
+
 for STUDYDIR in ${studydirarray[*]}
 do
 	echo printf "%s\n" $STUDYDIR
