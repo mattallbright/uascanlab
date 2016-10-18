@@ -9,7 +9,7 @@ echo -e "\e[0;31mquickly convert dcm images to nifti, move and rename those nift
 echo -e "\e[0;31mtheir respective individual analysis directory, and prepare them for analysis \e[0m"
 echo -e "\e[0;31min SPM. This version will populate all images (BOLD and anatomical) for all \e[0m"
 echo -e "\e[0;31mtasks for a given participant.\e[0m"
-echo -e "\e[0;31mType cntrl+c at any time to stop the script. \e[0m"
+echo -e "\e[0;31mType ctrl+c at any time to stop the script. \e[0m"
 echo -en '\n'
 echo "Created by Matt Allbright"
 
@@ -198,10 +198,7 @@ echo "Please type the number of the participant you would like to process."
 #Create participant array for valid participants
 particdirarray=`(ls -f | grep -E '[0-9][0-9][0-9]' | grep -v "_2" | grep -v "BV" | grep -v "PTx")`
 
-for PARTICDIR in ${particdirarray[*]}
-do
-	printf "%s\n" $PARTICDIR
-done
+echo $particdirarray
 
 
 #Copy Hermes to local
