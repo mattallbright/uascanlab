@@ -253,19 +253,18 @@ if [[ -n ${particdirarray[*]} ]]; then
 
 	read PARTIC
 
-	if [[ $PARTIC ]]; then
+	if [[ " ${arr[@]} " =~ " $PARTIC " ]]; then
 
 		echo "You have selected participant $PARTIC."
 
 	#New partic creation
-	elif [[ $REPLY == "new" ]]; then
+	elif [[ $PARTIC == "new" ]]; then
 		echo -en '\n'
-		echo -e "\e[0;31mType in the name of the new participant.\e[0m"
+		echo -e "\e[0;31mType in the number of the new participant.\e[0m"
 		read NEWPARTIC
 		PARTIC=$NEWPARTIC
-		break
 	else
-		echo -e "Nonvalid participant. \e[0;31mPlease type in a valid participant.\e[0m"
+		echo -e "Nonvalid participant. \e[0;31mPlease type in a valid participant number.\e[0m"
 	fi
 
 else
