@@ -253,7 +253,7 @@ if [[ -n ${particdirarray[*]} ]]; then
 
 	while read PARTIC; do
 
-		if [[ " ${particdirarray[@]} " =~ " ${PARTIC} " ]]; then
+		if [[ " ${particdirarray[@]} " =~ $PARTIC ]]; then
 			break
 
 		#New partic creation
@@ -262,8 +262,10 @@ if [[ -n ${particdirarray[*]} ]]; then
 			echo -e "\e[0;31mType in the number of the new participant.\e[0m"
 			read NEWPARTIC
 			PARTIC=$NEWPARTIC
+
 		else
 			echo -e "Nonvalid participant. \e[0;31mPlease type in a valid participant number.\e[0m"
+
 		fi
 	done
 
