@@ -253,7 +253,7 @@ if [[ -n ${particdirarray[*]} ]]; then
 
 	while read PARTIC; do
 
-		if [[ " ${particdirarray[@]} " =~ $PARTIC ]]; then
+		if [[ ${particdirarray[@]} =~ $PARTIC ]]; then
 			break
 
 		#New partic creation
