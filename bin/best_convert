@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #new_convertit
 #Created by Matt Allbright
 
@@ -27,13 +27,13 @@ unset ANAT
 unset NumbAnat
 unset ISBOTH
 
-cd /data
+cd /data/
 
 #Choose Study
 echo -en '\n'
 
 #Create study array for possible studies
-studydirarray=(*)
+studydirarray=(*/)
 
 for STUDYDIR in ${studydirarray[*]}
 do
