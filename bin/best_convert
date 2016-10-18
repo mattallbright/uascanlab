@@ -166,8 +166,7 @@ if [[ -n $NEWSTUDY ]] && [[ ! -d /data/$STUDY ]]; then
 	fi
 fi
 
-echo "\n$STUDY was selected, beginning process steps."
-
+echo -e "\n$STUDY was selected, beginning process steps."
 #Verify X skeleton
 echo -e "\n\e[0;31mVerifying 'X' skeleton validity.\e[0m"
 
