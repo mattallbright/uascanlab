@@ -196,9 +196,15 @@ echo -e "\e[0;31mThe following are a list of possible participants.\e[0m"
 echo "Please type the number of the participant you would like to process."
 
 #Create participant array for valid participants
-particdirarray=`(ls -f | grep -E '[0-9][0-9][0-9]' | grep -v "_2" | grep -v "BV" | grep -v "PTx")`
+particdirarray=`(ls -f | grep -Eo '[0-9][0-9][0-9]')`
 
-echo ${particdirarray[*]}
+for particnum in "${particdirarray[@]}"
+do
+   echo "$particnum"
+   # or do whatever with individual element of the array
+done
+
+read PARTICNUMRESPONSE
 
 
 #Copy Hermes to local
