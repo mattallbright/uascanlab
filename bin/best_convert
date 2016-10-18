@@ -183,7 +183,7 @@ if [[ -n ${studydirarray[*]} ]]; then
   echo
 
   #Create participant array for valid participants
-  particdirarray=`(ls -f | grep -E '[0-9][0-9][0-9]' | grep -v "_2")`
+  particdirarray=`(ls -f | grep -E '[0-9][0-9][0-9]' | grep -v "_2" | grep -v "BV" | grep -v "PTx")`
   for PARTICDIR in ${particdirarray[*]}
   do
   	printf "%s\n" $PARTICDIR
