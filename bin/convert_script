@@ -1,0 +1,135 @@
+#! /bin/bash
+
+# convert_script
+# Converts all RAW in one folder to .nii
+
+cd /data/
+
+studydirarray=(*/)
+for studydir in "${studydirarray[@]}"; do
+        echo "$studydir";
+done
+
+echo "which dir do you want?"
+echo -n "> "
+
+read studydir
+
+echo "You selected $studydir. Great job!"
+
+cd "$studydir/RAW_data"
+
+particdirarray=(*/)
+
+echo "1) Individual participants or 2) whole study?"
+read userresponse
+
+if [ $userresponse -eq 1 ]; then
+        echo "You have chosen to process one participant.";
+        echo "A list is as follows:";
+        particnumarray=(`(ls -f | grep  '[0-9][0-9][0-9]' | grep -v '("_2"|"_1")')`)
+        for particnum in ${particdirarray[*]}; do
+                printf "%s\n" $particnum
+        done
+        break
+
+else
+        echo "You have chosen to process the whole study."
+        for particdir in "${particdirarray[@]}"; do
+                echo "Processing $particdir";
+                echo -n;
+
+                cd "$particdir"
+
+                msitconfirm=$(find . -maxdepth 3 -type d -iname "*MSIT*"| wc -l)
+                echo "Test case: $msitconfirm"
+
+
+                if [ $msitconfirm -eq 0 ]; then
+                        echo "No MSIT processing required.";
+                elif [ $msitconfirm -eq 1 ]; then
+                        echo "Processing MSIT..."
+                        msitdir=$(find . -maxdepth 3 -type d -iname "*MSIT*")
+                        dcm2nii -g N -v Y "$msitdir";
+                else
+                        echo "Processing multiple MSIT..."
+                        echo "You may want to check your directory after to verify there are no errors."
+
+                        msitarray=($(find . -maxdepth 3 -iname "*MSIT*"))
+
+                        for msitmultidir in $(seq 0 $((${#msitarray[@]} - 1))); do
+                                echo "Running for ${msitarray[$msitmultidir]}..."
+                                dcm2nii -g N -v Y "$msitmultidir";
+                        done
+
+                fi
+
+                nbackconfirm=$(find . -maxdepth 3 -type d -iname "*NBACK*"| wc -l)
+
+                if [ $nbackconfirm -eq 0 ]; then
+                        echo "No NBACK processing required.";
+                elif [ $nbackconfirm -eq 1 ]; then
+                        echo "Processing NBACK..."
+                        nbackdir=$(find . -maxdepth 3 -type d -iname "*NBACK*")
+                        dcm2nii -g N -v Y "$nbackdir";
+                else
+                        echo "Processing multiple NBACK..."
+                        echo "You may want to check your directory after to verify there are no errors."
+
+                        nbackarray=($(find . -maxdepth 3 -iname "*NBACK*"))
+
+                        for nbackmultidir in $(seq 0 $((${#nbackarray[@]} - 1))); do
+                                echo "Running for ${nbackarray[$nbackmultidir]}..."
+                                dcm2nii -g N -v Y "$nbackmultidir";
+                        done
+
+                fi
+
+                        restconfirm=$(find . -maxdepth 3 -type d -iname "*Rest*"| wc -l)
+
+                        if [ $restconfirm -eq 0 ]; then
+                                echo "No Rest processing required.";
+                elif [ $restconfirm -eq 1 ]; then
+                        echo "Processing Rest..."
+                        restdir=$(find . -maxdepth 3 -type d -iname "*Rest*")
+                        dcm2nii -g N -v Y "$restdir";
+                else
+                        echo "Processing multiple Rest..."
+                        echo "You may want to check your directory after to verify there are no errors."
+
+                        restarray=($(find . -maxdepth 3 -iname "*Rest*"))
+
+                        for restmultidir in $(seq 0 $((${#restarray[@]} - 1))); do
+                                echo "Running for ${restarray[$restmultidir]}..."
+                                dcm2nii -g N -v Y "$restmultidir";
+                        done
+
+                fi
+
+                t1confirm=$(find . -maxdepth 3 -type d -iname "*T1*"| wc -l)
+
+                if [ $t1confirm -eq 0 ]; then
+                        echo "No T1 processing required.";
+                elif [ $t1confirm -eq 1 ]; then
+                        echo "Processing T1..."
+                        t1dir=$(find . -maxdepth 3 -type d -iname "*T1*")
+                        dcm2nii -g N -v Y "$t1dir";
+                else
+                        echo "Processing multiple T1..."
+                        echo "You may want to check your directory after to verify there are no errors."
+
+                        t1array=($(find . -maxdepth 3 -iname "*T1*"))
+
+                        for t1multidir in $(seq 0 $((${#t1array[@]} - 1))); do
+                                echo "Running for ${t1array[$t1multidir]}..."
+                                dcm2nii -g N -v Y "$t1multidir";
+                        done
+
+
+
+                fi
+
+                cd ..
+
+              done
+fi

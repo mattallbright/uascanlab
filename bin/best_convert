@@ -1,0 +1,138 @@
+#! /bin/bash
+
+#best_convert
+
+#Checks if folders exist in base directory, then asks for study folder.
+if [[ -n ${studydirarray[*]} ]]; then
+
+	echo -en '\n'
+	echo -e "\e[0;31mWhat is the name of the study?\e[0m"
+	echo "Be aware that each of these is a folder name"
+	echo "and that certain folders might not be studies."
+	echo -en '\n'
+	echo -e "If your study does not exist, type '\e[0;31mnew\e[0m' to"
+	echo "create a new study."
+	echo -en '\n'
+
+	select STUDY in ${studydirarray[*]}
+	do
+		#If inputting correct study value
+		if [[ $STUDY ]]; then
+			break
+
+		#New study creation, occurs if user input 'new'
+		elif [[ $REPLY == "new" ]]; then
+			unset
+			echo -en '\n'
+			echo -e "\e[0;31mType in the name of the new study.\e[0m"
+			echo -e "If you are seeing this screen by mistake, type '\e[0;31mback\e[0m'"
+			echo "to return to the main menu."
+			echo -en '\n'
+			while read STUDY; do
+
+				#Study already exists error
+				if [[ -d /data/$STUDY ]]; then
+					echo "This is already a valid study. Please input"
+					echo "a new study or type 'back' to return to the main menu."
+					echo -en '\n'
+
+				#NEEDSWORK Sends user back to main menu
+				elif [[ $STUDY == "back" ]]; then
+					break
+
+				#Makes directory based on user input
+				else
+					mkdir /data/$STUDY
+					echo "A new directory with name "$STUDY" has been created."
+					echo "Restart this script and use your new directory."
+					exit
+				fi
+			done
+
+		#Fails if user input selects nonvalid study
+		else
+			echo -e "Nonvalid study. \e[0;31mPlease type in a valid study.\e[0m"
+		fi
+	done
+
+#If no folders exist in base folder, it will prompt for new study creation
+else
+	echo "There appear to be no valid studies. To create a"
+	echo -e "new study, just \e[0;31mtype the name of your study.\e[0m"
+	read NEWSTUDY
+	STUDY=$NEWSTUDY
+fi
+
+#New study folder creation
+if [[ -n $NEWSTUDY ]] && [[ ! -d /data/$STUDY ]]; then
+	mkdir -p $STUDY/RAW_data
+	mkdir -p $STUDY/individual_analysis
+
+	echo "Welcome to a new study creation session."
+	echo "RAW_data and indiv_analysis have been created"
+	echo -e "for you. Create more directories? \e[0;31my/n\e[0m"
+	echo -en '\n'
+	read NEWSTUDYFOLDER
+
+	#If user chooses yes to create more directoriesm it will initialize a file which tracks all folders
+	if [[ $NEWSTUDYFOLDER == "y" ]]; then
+		touch $STUDY/folderlist.txt
+		echo "RAW_data" >> $STUDY/folderlist.txt
+		echo "indiv_analysis" >> $STUDY/folderlist.txt
+
+		#New study folder creation (More directories edition)
+		while [[ $DIRCREATEDONE == "n" ]]; do
+			ls -d /$STUDY
+			echo -en '\n'
+			echo "Type in a directory name to create it."
+			read NEWDIRVALUE
+
+			echo $NEWDIRVALUE >> folder.txt
+
+			mkdir $STUDY/"$NEWDIRVALUE"
+
+			echo -en '\n'
+			ls -d /$STUDY
+			echo -en '\n'
+
+			#Ending prompt
+			echo -e "Does this complete the new directory setup? \e[0;31my/n\e[0m"
+			while read DIRCREATEDONE; do
+				if [[ $DIRCREATEDONE == "y" ]] || [[ $DIRCREATEDONE == "n" ]]; then
+					break
+				else
+					echo "Please enter y/n."
+				fi
+			done
+			echo -en '\n'
+		done
+
+	#If user okays that indiv_analysis and RAW_data are the only folders
+	elif [[ $NEWSTUDYFOLDER == "n" ]]; then
+		break
+
+	#if user enters wrong value
+	else
+		echo "Please enter y/n."
+	fi
+fi
+
+echo -en '\n'
+
+#Choose Participant
+echo -en '\n'
+cd $STUDY/RAW_data
+
+#Create participant array for valid participants
+particdirarray=`(ls -f | grep -E '[0-9][0-9][0-9]' | grep -v "_2")`
+for PARTICDIR in ${particdirarray[*]}
+do
+	printf "%s\n" $PARTICDIR
+done
+
+#Read verify analyses
+#  If false,
+#    Create new x skeleton
+#Copy Hermes to local
+#Convert dcm2nii
+#Move to proper folders based on x skeleton

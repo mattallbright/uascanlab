@@ -35,6 +35,10 @@ echo "What root directory contains your studies? Please"
 echo "enter it as /path/to/datadir"
 read DATADIR
 
+#DEBUG ECHO
+echo $DATADIR
+#ENDDEBUG ECHO
+
 cd $DATADIR
 
 #Choose Study
@@ -168,6 +172,10 @@ fi
 
 cd $STUDY/RAW_data/
 
+#DEBUG ECHO
+echo $STUDY/RAW_data/
+#ENDDEBUG ECHO
+
 #Create participant array for valid participants
 particdirarray=`(ls -f | grep  '[0-9][0-9][0-9]' | grep -v '("_2"|"_1")')`
 for PARTICDIR in ${particdirarray[*]}
@@ -195,7 +203,17 @@ if [[ -n ${particdirarray[*]} ]]; then
 
 			echo  "Type in the name of the new participant."
 			read NEWPARTIC
+
+			#DEBUG ECHO
+			echo $NEWPARTIC
+			#ENDDEBUG ECHO
+
 			PARTIC=$NEWPARTIC
+
+			#DEBUG ECHO
+			echo "214" $PARTIC
+			#ENDDEBUG ECHO
+
 			break
 		else
 			echo  "Nonvalid participant. Please type in a valid participant."
@@ -206,9 +224,6 @@ else
 	echo  "a participant to begin processing."
 	read PARTIC
 fi
-
-
-
 
 #Choose Longitudinal or Single Visit
 
@@ -238,8 +253,10 @@ elif [ $VISITTYPE -eq "2" ]; then
 	done
 fi
 
-
-
+#DEBUG ECHO
+echo "260" $VISITTYPE
+echo "261" $VISIT
+#ENDDEBUG ECHO
 
 if [[ $VISIT == "Baseline" ]] || [[ $VISIT == "dayofscan" ]] || [[ $VISIT == "Both" ]] && [[ -d $DATADIR/$STUDY/RAW_data/"$PARTIC" ]]; then
 	echo "It appears that a RAW_data directory already exists."
@@ -256,6 +273,10 @@ elif [[ $VISIT == "PostTX" ]] && [[ -d $DATADIR/$STUDY/RAW_data/""$PARTIC"_2" ]]
 elif [[ $VISIT == "PostTX" ]] || [[ $VISIT == "Both" ]] && [[ ! -d $DATADIR/$STUDY/RAW_data/""$PARTIC"_2" ]]; then
 	NEWWRITE="y"
 fi
+
+#DEBUG ECHO
+echo "282" $NEWWRITE
+#ENDDEBUG ECHO
 
 #Baseline or Single Visit
 #Test for 'Both' variant
@@ -275,17 +296,57 @@ if [[ $VISIT == "Baseline" ]] || [[ $VISIT == "dayofscan" ]] && [[ $NEWWRITE == 
 	if [ -d /Hermes/"$STUDY"_scans ]; then
 		echo "This is your first run and might take a very long time."
 		OSIRIX=`find /Hermes/"$STUDY"_scans -maxdepth 1 -iname "*$Num*" -print | sort | tail -1 | sed 's/.*\///'`
+
+		#DEBUG ECHO
+		echo "305" $OSIRIX
+		#ENDDEBUG ECHO
+
 		cd /Hermes/"$STUDY"_scans/"$OSIRIX"
 		target_dir=`ls /Hermes/"$STUDY"_scans/"$OSIRIX"`
+
+		#DEBUG ECHO
+		echo "313" $target_dir
+		#ENDDEBUG ECHO
+
 		cp -a "$target_dir" $DATADIR/$STUDY/RAW_data
+
+		#DEBUG ECHO
+		echo "318" "Copying data..."
+		#ENDDEBUG ECHO
+
 		mv $DATADIR/$STUDY/RAW_data/"$target_dir" $DATADIR/$STUDY/RAW_data/"$PARTIC"
+
+		#DEBUG ECHO
+		echo "324" "Renaming target directory..."
+		#ENDDEBUG ECHO
+
 	else
 		echo "This is your first run and might take a very long time."
 		OSIRIX=`find /Hermes/"$STUDY" -maxdepth 1 -iname "*$Num*" -print | sort | tail -1 | sed 's/.*\///'`
+
+		#DEBUG ECHO
+		echo "332" $OSIRIX
+		#ENDDEBUG ECHO
+
 		cd /Hermes/"$STUDY"/"$OSIRIX"
 		target_dir=`ls /Hermes/"$STUDY"/"$OSIRIX"`
+
+		#DEBUG ECHO
+		echo "339" $target_dir
+		#ENDDEBUG ECHO
+
 		cp -a "$target_dir" $DATADIR/$STUDY/RAW_data
+
+		#DEBUG ECHO
+		echo "345" "Copying data..."
+		#ENDDEBUG ECHO
+
 		mv $DATADIR/$STUDY/RAW_data/"$target_dir" $DATADIR/$STUDY/RAW_data/"$PARTIC"
+
+		#DEBUG ECHO
+		echo "351" "Renaming target directory..."
+		#ENDDEBUG ECHO
+
 	fi
 
 #Check if participant RAW_directory exists for PostTX. If not, find Participant's raw
@@ -296,26 +357,86 @@ if [[ $VISIT == "Baseline" ]] || [[ $VISIT == "dayofscan" ]] && [[ $NEWWRITE == 
 #Test for 'Both' variant
 if [[ $ISBOTH == "TRUE" ]]; then
 	VISIT="PostTX"
+
+	#DEBUG ECHO
+	echo "366" $ISBOTH
+	#ENDDEBUG ECHO
+
 fi
 
 #PostTX test
 elif [[ $VISIT == "PostTX" ]] && [[ $NEWWRITE == "y" ]]; then
 
 	Num=`echo $PARTIC | grep -Eo '[0-9][0-9][0-9]'`
+
+	#DEBUG ECHO
+	echo "373" $Num
+	#ENDDEBUG ECHO
+
 	if [ -d /Hermes/"$STUDY"_scans ]; then
 		echo "This is your first run and might take a very long time."
 		OSIRIX=`find /Hermes/"$STUDY"_scans -maxdepth 1 -iname "*$Num*" -print | sort | head -1 | sed 's/.*\///'`
+
+		#DEBUG ECHO
+		echo "381" $OSIRIX
+		#ENDDEBUG ECHO
+
 		cd /Hermes/"$STUDY"_scans/"$OSIRIX"
+
+		#DEBUG ECHO
+		echo "387" /Hermes/"$STUDY"_scans/"$OSIRIX"
+		#ENDDEBUG ECHO
+
 		target_dir=`ls /Hermes/"$STUDY"_scans/"$OSIRIX"`
+
+		#DEBUG ECHO
+		echo "393" $target_dir
+		#ENDDEBUG ECHO
+
 		cp -a "$target_dir" $DATADIR/$STUDY/RAW_data
+
+		#DEBUG ECHO
+		echo "399" "Copying data..."
+		#ENDDEBUG ECHO
+
 		mv $DATADIR/$STUDY/RAW_data/"$target_dir" $DATADIR/$STUDY/RAW_data/"$PARTIC"_2
+
+		#DEBUG ECHO
+		echo "405" "Renaming target directory..."
+		#ENDDEBUG ECHO
+
 	else
 		echo "This is your first run and might take a very long time."
 		OSIRIX=`find /Hermes/"$STUDY" -maxdepth 1 -iname "*$Num*" -print | sort | head -1 | sed 's/.*\///'`
+
+		#DEBUG ECHO
+		echo "413" $OSIRIX
+		#ENDDEBUG ECHO
+
 		cd /Hermes/"$STUDY"/"$OSIRIX"
+
+		#DEBUG ECHO
+		echo "419" /Hermes/"$STUDY"/"$OSIRIX"
+		#ENDDEBUG ECHO
+
 		target_dir=`ls /Hermes/"$STUDY"/"$OSIRIX"`
+
+		#DEBUG ECHO
+		echo "425" $target_dir
+		#ENDDEBUG ECHO
+
 		cp -a "$target_dir" $DATADIR/$STUDY/RAW_data
+
+		#DEBUG ECHO
+		echo "431" "Copying data..."
+		#ENDDEBUG ECHO
+
 		mv $DATADIR/$STUDY/RAW_data/"$target_dir" $DATADIR/$STUDY/RAW_data/"$PARTIC"_2
+
+		#DEBUG ECHO
+		echo "437" "Renaming target directory..."
+		#ENDDEBUG ECHO
+
 	fi
 fi
 
@@ -326,8 +447,17 @@ if [[ ! -d $DATADIR/$STUDY/indiv_analysis/"$PARTIC" ]]; then
 	unset TEMPLATECORRECT
 	cd $DATADIR/"$STUDY"/indiv_analysis
 
+	#DEBUG ECHO
+	echo "451" $DATADIR/"$STUDY"/indiv_analysis
+	#ENDDEBUG ECHO
+
 	if [[ ! -d $DATADIR/"$STUDY"/indiv_analysis/x ]]; then
 		TEMPLATECORRECT=n
+
+			#DEBUG ECHO
+			echo "458" $TEMPLATECORRECT
+			#ENDDEBUG ECHO
+
 	else
 
 		echo "A templated directory already exists."
@@ -338,8 +468,18 @@ if [[ ! -d $DATADIR/$STUDY/indiv_analysis/"$PARTIC" ]]; then
 		echo  "Is this correct? y/n "
 		while read TEMPLATECORRECT; do
 			if [[ $TEMPLATECORRECT == "y" ]] || [[ $TEMPLATECORRECT == "n" ]]; then
+
+				#DEBUG ECHO
+				echo "473" "Pre-break"
+				#ENDDEBUG ECHO
+
 				break
 			else
+
+				#DEBUG ECHO
+				echo "480" "Elsebreak"
+				#ENDDEBUG ECHO
+
 				echo "Please enter y/n."
 			fi
 		done
