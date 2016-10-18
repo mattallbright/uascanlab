@@ -254,7 +254,8 @@ if [[ -n ${particdirarray[*]} ]]; then
 	read PARTIC
 
 	if [[ $PARTIC ]]; then
-			break
+
+		echo "You have selected participant $PARTIC."
 
 	#New partic creation
 	elif [[ $REPLY == "new" ]]; then
@@ -266,13 +267,47 @@ if [[ -n ${particdirarray[*]} ]]; then
 	else
 		echo -e "Nonvalid participant. \e[0;31mPlease type in a valid participant.\e[0m"
 	fi
+
 else
-echo -e "There appear to be no participants. \e[0;31mType in a number of\e[0m"
-echo -e "\e[0;31ma participant to begin processing.\e[0m"
-read PARTIC
+	echo -e "There appear to be no participants. \e[0;31mType in a number of\e[0m"
+	echo -e "\e[0;31ma participant to begin processing.\e[0m"
+	read PARTIC
 fi
 
+echo "Moving on..."
+echo "Please select the schedule for the study."
+echo "This step will most likely be placed in Study Creation in future revisions."
+echo -en '\n'
 
+#Choose Longitudinal or Single Visit
+echo -en '\n'
+echo -e "One-Day Visit (\e[0;31m1\e[0m) or Longitudinal Study (\e[0;31m2\e[0m)?"
+while read VISITTYPE; do
+	if [[ $VISITTYPE == "1" ]] || [[ $VISITTYPE == "2" ]]; then
+		break
+	else
+		echo "Please enter a valid visit type."
+	fi
+done
+
+if [ $VISITTYPE -eq "1" ]; then
+	VISIT=dayofscan
+
+elif [ $VISITTYPE -eq "2" ]; then
+
+	#Choose Visit
+	echo -en '\n'
+	echo -e "Which visit (either \e[0;31mBaseline\e[0m or \e[0;31mPostTX\e[0m or \e[0;31mBoth\e[0m)?"
+	while read VISIT; do
+		if [[ $VISIT == "Baseline" ]] || [[ $VISIT == "PostTX" ]] || [ $VISIT == "Both" ]; then
+			break
+		else
+			echo "Please enter a valid visit."
+		fi
+	done
+fi
+
+echo -en '\n'
 
 #Copy Hermes to local
 #Convert dcm2nii
