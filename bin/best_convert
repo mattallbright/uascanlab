@@ -266,6 +266,7 @@ if [[ -n ${particdirarray[*]} ]]; then
 		else
 			echo -e "Nonvalid participant. \e[0;31mPlease type in a valid participant number.\e[0m"
 		fi
+	done
 
 else
 	echo -e "There appear to be no participants. \e[0;31mType in a number of\e[0m"
