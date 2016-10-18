@@ -1,6 +1,43 @@
-#! /bin/bash
+#!/bin/sh
+#new_convertit
+#Created by Matt Allbright
 
-#best_convert
+#Welcome
+echo -en '\n'
+echo -e "\e[0;31mWelcome to best_convert This simple UNIX script will \e[0m"
+echo -e "\e[0;31mquickly convert dcm images to nifti, move and rename those nifti images to \e[0m"
+echo -e "\e[0;31mtheir respective individual analysis directory, and prepare them for analysis \e[0m"
+echo -e "\e[0;31min SPM. This version will populate all images (BOLD and anatomical) for all \e[0m"
+echo -e "\e[0;31mtasks for a given participant.\e[0m"
+echo -e "\e[0;31mType cntrl+c at any time to stop the script. \e[0m"
+echo -en '\n'
+echo "Created by Matt Allbright"
+
+#Unset values
+unset STUDY
+unset RAW_data
+unset VISIT
+unset PARTIC
+unset TASKVALUE
+unset TASK
+unset BOLDVALUE
+unset BOLDDONE
+unset ANATSTRING
+unset ANAT
+unset NumbAnat
+unset ISBOTH
+
+cd /data
+
+#Choose Study
+echo -en '\n'
+
+#Create study array for possible studies
+studydirarray=(*/)
+for STUDYDIR in ${studydirarray[*]}
+do
+	echo printf "%s\n" $STUDYDIR
+done
 
 #Checks if folders exist in base directory, then asks for study folder.
 if [[ -n ${studydirarray[*]} ]]; then
