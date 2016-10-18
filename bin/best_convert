@@ -253,9 +253,8 @@ if [[ -n ${particdirarray[*]} ]]; then
 
 	while read PARTIC; do
 
-		if [[ ${arr[@]} =~ $PARTIC ]]; then
-
-			echo "You have selected participant $PARTIC."
+		if [[ " ${particdirarray[@]} " =~ " $PARTIC " ]]; then
+			break
 
 		#New partic creation
 		elif [[ $PARTIC == "new" ]]; then
@@ -274,6 +273,7 @@ else
 	read PARTIC
 fi
 
+echo "You have selected participant $PARTIC."
 echo -e '\n'
 echo "Moving on..."
 echo -e '\n'
