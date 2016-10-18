@@ -95,9 +95,8 @@ if [[ -n ${studydirarray[*]} ]]; then
 
   				#Makes directory based on user input
   				else
-  					mkdir /data/$STUDY
-  					echo "A new directory with name "$STUDY" has been created."
-
+  					echo "A new directory with name "$STUDY" will be created."
+            STUDY=$NEWSTUDY
   					exit
   				fi
   			done
@@ -108,90 +107,104 @@ if [[ -n ${studydirarray[*]} ]]; then
   		fi
   	done
 
-  #If no folders exist in base folder, it will prompt for new study creation
-  else
-  	echo "There appear to be no valid studies. To create a"
-  	echo -e "new study, just \e[0;31mtype the name of your study.\e[0m"
-  	read NEWSTUDY
-  	STUDY=$NEWSTUDY
-  fi
+#This is not a priority
+#If no folders exist in base folder, it will prompt for new study creation
+else
+  echo "There appear to be no valid studies. To create a"
+  echo -e "new study, just \e[0;31mtype the name of your study.\e[0m"
+  read NEWSTUDY
+  STUDY=$NEWSTUDY
+fi
 
-  #New study folder creation
-  if [[ -n $NEWSTUDY ]] && [[ ! -d /data/$STUDY ]]; then
-  	mkdir -p $STUDY/RAW_data
-  	mkdir -p $STUDY/individual_analysis
+#Most people will never see this
+#New study folder basic creation based on previous read value
+if [[ -n $NEWSTUDY ]] && [[ ! -d /data/$STUDY ]]; then
+	mkdir -p $STUDY/RAW_data
+	mkdir -p $STUDY/individual_analysis
 
-  	echo "Welcome to a new study creation session."
-  	echo "RAW_data and indiv_analysis have been created"
-  	echo -e "for you. Create more directories? \e[0;31my/n\e[0m"
-  	echo -en '\n'
-  	read NEWSTUDYFOLDER
+	echo "Welcome to a new study creation session."
+	echo "RAW_data and indiv_analysis have been created"
+	echo -e "for you. Create more directories? \e[0;31my/n\e[0m"
+	echo -en '\n'
+	read NEWSTUDYFOLDER
 
-  	#If user chooses yes to create more directories it will initialize a file which tracks all folders
-  	if [[ $NEWSTUDYFOLDER == "y" ]]; then
-  		touch $STUDY/folderlist.txt
-  		echo "RAW_data" >> $STUDY/folderlist.txt
-  		echo "indiv_analysis" >> $STUDY/folderlist.txt
+	#If user chooses yes to create more directories it will initialize a file which tracks all folders
+	if [[ $NEWSTUDYFOLDER == "y" ]]; then
 
-  		#New study folder creation (More directories edition)
-  		while [[ $DIRCREATEDONE == "n" ]]; do
-  			ls -d /$STUDY
-  			echo -en '\n'
-  			echo "Type in a directory name to create it."
-  			read NEWDIRVALUE
+		#New study folder creation (More directories edition)
+		while [[ $DIRCREATEDONE == "n" ]]; do
+			ls -d /$STUDY
+			echo -en '\n'
+			echo "Type in a directory name to create it."
+			read NEWDIRVALUE
 
-  			echo $NEWDIRVALUE >> folder.txt
+			mkdir $STUDY/"$NEWDIRVALUE"
 
-  			mkdir $STUDY/"$NEWDIRVALUE"
+			echo -en '\n'
+			ls -d /$STUDY
+			echo -en '\n'
 
-  			echo -en '\n'
-  			ls -d /$STUDY
-  			echo -en '\n'
+			#Ending prompt
+			echo -e "Does this complete the new directory setup? \e[0;31my/n\e[0m"
+			while read DIRCREATEDONE; do
+				if [[ $DIRCREATEDONE == "y" ]] || [[ $DIRCREATEDONE == "n" ]]; then
+					break
+				else
+					echo "Please enter y/n."
+				fi
+			done
+			echo -en '\n'
+		done
 
-  			#Ending prompt
-  			echo -e "Does this complete the new directory setup? \e[0;31my/n\e[0m"
-  			while read DIRCREATEDONE; do
-  				if [[ $DIRCREATEDONE == "y" ]] || [[ $DIRCREATEDONE == "n" ]]; then
-  					break
-  				else
-  					echo "Please enter y/n."
-  				fi
-  			done
-  			echo -en '\n'
-  		done
+	#If user okays that indiv_analysis and RAW_data are the only folders
+	elif [[ $NEWSTUDYFOLDER == "n" ]]; then
+		break
 
-  	#If user okays that indiv_analysis and RAW_data are the only folders
-  	elif [[ $NEWSTUDYFOLDER == "n" ]]; then
-  		break
+	#if user enters wrong value
+	else
+		echo "Please enter y/n."
+	fi
+fi
 
-  	#if user enters wrong value
-  	else
-  		echo "Please enter y/n."
-  	fi
-  fi
+#Verify X skeleton
+echo -e "\e[0;31mVerifying 'X' skeleton validity.\e[0m"
 
+#If X looks good, break
+if [[ -d $STUDY/indiv_analysis/x ]]; then
+  echo -e "'X' skeleton looks good. Continuing...\n"
+  break
+
+#X creation wizard begins
+elif [[ -n $NEWSTUDY ]]; then
+  mkdir -p $STUDY/RAW_data
+  mkdir -p $STUDY/indiv_analysis
+
+  echo "'X' setup not found. Initializing 'X' creation session."
   echo -en '\n'
-  echo -e "\e[0;31mThe following are a list of possible participants.\e[0m"
-  echo "Please type the number of the participant you would like to process."
+  echo "Welcome to a new 'X' skeleton session."
+  echo "'X' is how we determine what analyses should be processed."
+  echo "Rest has been created."
+  echo -e "for you. Create more directories? \e[0;31my/n\e[0m"
   echo -en '\n'
+  read NEWSTUDYFOLDER
+fi
 
-  #Choose Participant
-  echo -en '\n'
-  cd $STUDY/RAW_data
+#Choose Participant
+cd $STUDY/RAW_data
 
-  #Blurb about participants
-  echo
+#Blurb about participants
+echo -e "\e[0;31mThe following are a list of possible participants.\e[0m"
+echo "Please type the number of the participant you would like to process."
 
-  #Create participant array for valid participants
-  particdirarray=`(ls -f | grep -E '[0-9][0-9][0-9]' | grep -v "_2" | grep -v "BV" | grep -v "PTx")`
-  for PARTICDIR in ${particdirarray[*]}
-  do
-  	printf "%s\n" $PARTICDIR
-  done
+#Create participant array for valid participants
+particdirarray=`(ls -f | grep -E '[0-9][0-9][0-9]' | grep -v "_2" | grep -v "BV" | grep -v "PTx")`
 
-#Read verify analyses
-#  If false,
-#    Create new x skeleton
+for PARTICDIR in ${particdirarray[*]}
+do
+	printf "%s\n" $PARTICDIR
+done
+
+
 #Copy Hermes to local
 #Convert dcm2nii
 #Move to proper folders based on x skeleton
