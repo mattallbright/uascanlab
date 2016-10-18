@@ -166,8 +166,10 @@ if [[ -n $NEWSTUDY ]] && [[ ! -d /data/$STUDY ]]; then
 	fi
 fi
 
+echo "\n$STUDY was selected, beginning process steps."
+
 #Verify X skeleton
-echo -e "\e[0;31mVerifying 'X' skeleton validity.\e[0m"
+echo -e "\n\e[0;31mVerifying 'X' skeleton validity.\e[0m"
 
 #X creation wizard begins
 if [[ -n $NEWSTUDY ]]; then
