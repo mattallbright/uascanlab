@@ -35,11 +35,6 @@ echo -en '\n'
 #Create study array for possible studies
 studydirarray=(*/)
 
-for STUDYDIR in ${studydirarray[*]}
-do
-	echo printf "%s\n" $STUDYDIR
-done
-
 #Checks if folders exist in base directory, then asks for study folder.
 if [[ -n ${studydirarray[*]} ]]; then
 
@@ -166,7 +161,10 @@ if [[ -n $NEWSTUDY ]] && [[ ! -d /data/$STUDY ]]; then
 	fi
 fi
 
-echo -e "\n$STUDY was selected, beginning process steps."
+#Debug msg
+echo -en '\n'
+echo -e "$STUDY was selected, beginning process steps."
+
 #Verify X skeleton
 echo -e "\n\e[0;31mVerifying 'X' skeleton validity.\e[0m"
 
