@@ -111,7 +111,7 @@ else
   STUDY=$NEWSTUDY
 fi
 
-#Most people will never see this
+#Most people will never see this, so it's WIP indefinitely
 #New study folder basic creation based on previous read value
 if [[ -n $NEWSTUDY ]] && [[ ! -d /data/$STUDY ]]; then
 	mkdir -p $STUDY/RAW_data
@@ -170,8 +170,7 @@ echo -e "\n\e[0;31mVerifying 'X' skeleton validity.\e[0m"
 
 #X creation wizard begins
 if [[ -n $NEWSTUDY ]]; then
-  mkdir -p $STUDY/RAW_data
-  mkdir -p $STUDY/indiv_analysis
+  mkdir -p $STUDY/indiv_analysis/x/3danat_rest
 
   echo "'X' setup not found. Initializing 'X' creation session."
   echo -en '\n'
@@ -180,7 +179,44 @@ if [[ -n $NEWSTUDY ]]; then
   echo "Rest has been created."
   echo -e "for you. Create more directories? \e[0;31my/n\e[0m"
   echo -en '\n'
-  read NEWSTUDYFOLDER
+  read NEWXFOLDER
+
+	#If user chooses yes to create more directories it will initialize a file which tracks all folders
+	if [[ $NEWXFOLDER == "y" ]]; then
+
+		#New study folder creation (More directories edition)
+		while [[ $XDIRCREATEDONE == "n" ]]; do
+			ls -d /$STUDY/indiv_analysis/x
+			echo -en '\n'
+			echo "Type in a directory name to create it."
+			read NEWXVALUE
+
+			mkdir $STUDY/indiv_analysis/x/"$NEWXVALUE"
+
+			echo -en '\n'
+			ls -d /$STUDY/indiv_analysis/x
+			echo -en '\n'
+
+			#Ending prompt
+			echo -e "Does this complete the new directory setup? \e[0;31my/n\e[0m"
+			while read XCREATEDONE; do
+				if [[ $XCREATEDONE == "y" ]] || [[ $XCREATEDONE == "n" ]]; then
+					break
+				else
+					echo "Please enter y/n."
+				fi
+			done
+			echo -en '\n'
+		done
+
+	#If user okays that indiv_analysis and RAW_data are the only folders
+	elif [[ $NEWXFOLDER == "n" ]]; then
+			break
+
+	#if user enters wrong value
+	else
+		echo "Please enter y/n."
+	fi
 
 #If X looks good, break
 else
@@ -193,18 +229,49 @@ cd $STUDY/RAW_data
 
 #Blurb about participants
 echo -e "\e[0;31mThe following are a list of possible participants.\e[0m"
-echo "Please type the number of the participant you would like to process."
+echo -e '\n'
+
 
 #Create participant array for valid participants
 particdirarray=`(ls -f | grep -Eo '[0-9][0-9][0-9]')`
 
-for particnum in "${particdirarray[@]}"
+for PARTICDIR in "${particdirarray[@]}"
 do
-   echo "$particnum"
+   echo "$PARTICDIR"
    # or do whatever with individual element of the array
 done
 
-read PARTICNUMRESPONSE
+#Determine if array exists
+if [[ -n ${particdirarray[*]} ]]; then
+
+	echo -en '\n'
+	echo -e "\e[0;31mWhich participant?\e[0m"
+	echo "Be aware that participants who are currently"
+	echo "not setup on this terminal may not appear."
+	echo -e "For new participants, please type '\e[0;31mnew\e[0m'."
+	echo -en '\n'
+
+	read PARTIC
+
+	if [[ $PARTIC ]]; then
+			break
+
+	#New partic creation
+	elif [[ $REPLY == "new" ]]; then
+		echo -en '\n'
+		echo -e "\e[0;31mType in the name of the new participant.\e[0m"
+		read NEWPARTIC
+		PARTIC=$NEWPARTIC
+		break
+	else
+		echo -e "Nonvalid participant. \e[0;31mPlease type in a valid participant.\e[0m"
+	fi
+else
+echo -e "There appear to be no participants. \e[0;31mType in a number of\e[0m"
+echo -e "\e[0;31ma participant to begin processing.\e[0m"
+read PARTIC
+fi
+
 
 
 #Copy Hermes to local
