@@ -198,7 +198,7 @@ echo "Please type the number of the participant you would like to process."
 #Create participant array for valid participants
 particdirarray=`(ls -f | grep -E '[0-9][0-9][0-9]' | grep -v "_2" | grep -v "BV" | grep -v "PTx")`
 
-echo $particdirarray
+echo ${particdirarray[*]}
 
 
 #Copy Hermes to local
